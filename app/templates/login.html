@@ -51,6 +51,10 @@
         <button type="submit" class="btn auth-btn">Sign in securely</button>
       </form>
 
+      {% if google_enabled %}
+      <a class="btn google-btn" href="/auth/google/login?next={{ next or '/dashboard' }}">Continue with Google</a>
+      {% endif %}
+
       <div class="demo-box">
         <strong>Demo access</strong>
         <div>Username: <b>farmer</b></div>

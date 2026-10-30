@@ -26,6 +26,12 @@ class Settings(BaseSettings):
     demo_username: str = "farmer"
     demo_password: str = "Matooke@2026!"
 
+    # --- Google OAuth for production login ---
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    google_redirect_uri: str = "http://localhost:8000/auth/google/callback"
+    google_oauth_scope: str = "openid email profile"
+
     # --- Responsible-AI thresholds (sections 5.1, 5.2, 12) ---
     # A candidate condition below this confidence is never shown as an answer;
     # the case is referred to a person instead.

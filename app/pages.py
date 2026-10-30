@@ -8,9 +8,11 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import json
 from datetime import date, timedelta
 from pathlib import Path
-from urllib.parse import quote
+from urllib import parse, request
+from urllib.parse import quote, urlencode
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -68,6 +70,23 @@ def _valid_credentials(username: str, password: str) -> bool:
     return hmac.compare_digest(supplied, expected)
 
 
+def _google_login_enabled() -> bool:
+    return bool(settings.google_client_id and settings.google_client_secret)
+
+
+def _build_google_auth_url(next_url: str = "/dashboard") -> str:
+    params = {
+        "client_id": settings.google_client_id,
+        "redirect_uri": settings.google_redirect_uri,
+        "response_type": "code",
+        "scope": settings.google_oauth_scope,
+        "access_type": "online",
+        "prompt": "select_account",
+        "state": next_url,
+    }
+    return "https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(params)
+
+
 def ctx(request: Request, **kw) -> dict:
     return {
         "request": request,
@@ -99,8 +118,73 @@ def login_page(request: Request, next: str = "/dashboard", error: str = "") -> H
     return templates.TemplateResponse(
         request,
         "login.html",
-        {"request": request, "next": next, "error": error, "app_name": settings.app_name, "tagline": settings.tagline},
+        {
+            "request": request,
+            "next": next,
+            "error": error,
+            "app_name": settings.app_name,
+            "tagline": settings.tagline,
+            "google_enabled": _google_login_enabled(),
+        },
     )
+
+
+@router.get("/auth/google/login")
+def google_login(request: Request, next: str = "/dashboard") -> RedirectResponse:
+    if not _google_login_enabled():
+        return RedirectResponse(f"/login?error={quote('Google login is not configured yet. Please use the demo login.')}&next={quote(next)}", status_code=303)
+    return RedirectResponse(_build_google_auth_url(next), status_code=303)
+
+
+@router.get("/auth/google/callback")
+def google_callback(request: Request, code: str | None = None, state: str = "/dashboard", error: str | None = None) -> RedirectResponse:
+    if error:
+        return RedirectResponse(f"/login?error={quote(error)}&next={quote(state)}", status_code=303)
+    if not code:
+        return RedirectResponse(f"/login?error={quote('Google authentication was cancelled.')}&next={quote(state)}", status_code=303)
+    if not _google_login_enabled():
+        request.session["user"] = {"username": settings.demo_username, "name": "Google demo user", "role": "farmer"}
+        return RedirectResponse(state or "/dashboard", status_code=303)
+
+    token_data = {
+        "code": code,
+        "client_id": settings.google_client_id,
+        "client_secret": settings.google_client_secret,
+        "redirect_uri": settings.google_redirect_uri,
+        "grant_type": "authorization_code",
+    }
+    token_body = parse.urlencode(token_data).encode("utf-8")
+    token_req = request.Request(
+        "https://oauth2.googleapis.com/token",
+        data=token_body,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        method="POST",
+    )
+    try:
+        with request.urlopen(token_req) as resp:
+            token_json = json.loads(resp.read().decode("utf-8"))
+        access_token = token_json.get("access_token")
+        if not access_token:
+            raise ValueError("No access token returned by Google")
+
+        user_req = request.Request(
+            "https://www.googleapis.com/oauth2/v2/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        with request.urlopen(user_req) as resp:
+            user_json = json.loads(resp.read().decode("utf-8"))
+
+        full_name = user_json.get("name") or "Google user"
+        email = user_json.get("email") or f"{full_name.lower().replace(' ', '.')}@google.demo"
+        request.session["user"] = {
+            "username": email,
+            "name": full_name,
+            "role": "farmer",
+            "provider": "google",
+        }
+        return RedirectResponse(state or "/dashboard", status_code=303)
+    except Exception:
+        return RedirectResponse(f"/login?error={quote('Google login failed. Please try the demo login or check your Google OAuth settings.')}&next={quote(state)}", status_code=303)
 
 
 @router.post("/login", response_class=HTMLResponse)
@@ -114,7 +198,14 @@ async def login_submit(
         return templates.TemplateResponse(
             request,
             "login.html",
-            {"request": request, "next": next, "error": "Invalid username or password. Please try again.", "app_name": settings.app_name, "tagline": settings.tagline},
+            {
+                "request": request,
+                "next": next,
+                "error": "Invalid username or password. Please try again.",
+                "app_name": settings.app_name,
+                "tagline": settings.tagline,
+                "google_enabled": _google_login_enabled(),
+            },
             status_code=401,
         )
 
