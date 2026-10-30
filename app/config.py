@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     # SQLite by default; set DATABASE_URL=postgresql+psycopg://... for Postgres.
     database_url: str = "sqlite:///./data/matookesmart.db"
 
+    # --- Security ---
+    session_secret: str = "matooke-smart-companion-dev-secret-change-me"
+    auth_salt: str = "matooke-smart-companion-salt"
+    demo_username: str = "farmer"
+    demo_password: str = "Matooke@2026!"
+
     # --- Responsible-AI thresholds (sections 5.1, 5.2, 12) ---
     # A candidate condition below this confidence is never shown as an answer;
     # the case is referred to a person instead.
