@@ -6,8 +6,11 @@ works on a cheap phone, on a flaky connection, or with scripts blocked.
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 from datetime import date, timedelta
 from pathlib import Path
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -39,6 +42,32 @@ def _pricechart(chart: dict, **kw):
 templates.env.filters["pricechart"] = _pricechart
 
 
+def current_user(request: Request) -> dict | None:
+    return request.session.get("user")
+
+
+def login_redirect(request: Request, next_path: str = "/dashboard") -> RedirectResponse:
+    return RedirectResponse(f"/login?next={quote(next_path)}", status_code=303)
+
+
+def ensure_auth(request: Request, next_path: str = "/dashboard") -> RedirectResponse | None:
+    if not current_user(request):
+        return login_redirect(request, next_path)
+    return None
+
+
+def _password_hash(value: str) -> str:
+    return hashlib.pbkdf2_hmac("sha256", value.encode("utf-8"), settings.auth_salt.encode("utf-8"), 200000).hex()
+
+
+def _valid_credentials(username: str, password: str) -> bool:
+    if (username or "").strip() != settings.demo_username:
+        return False
+    expected = _password_hash(settings.demo_password)
+    supplied = _password_hash(password)
+    return hmac.compare_digest(supplied, expected)
+
+
 def ctx(request: Request, **kw) -> dict:
     return {
         "request": request,
@@ -46,9 +75,9 @@ def ctx(request: Request, **kw) -> dict:
         "tagline": settings.tagline,
         "disclaimer": settings.data_disclaimer,
         "today": date.today(),
+        "user": current_user(request),
         "nav": [
-            ("/", "Overview"),
-            ("/dashboard", "Farmer home"),
+            ("/dashboard", "Dashboard"),
             ("/farm-doctor", "Farm doctor"),
             ("/when-to-sell", "When to sell"),
             ("/early-orders", "Early orders"),
@@ -61,6 +90,46 @@ def ctx(request: Request, **kw) -> dict:
         ],
         **kw,
     }
+
+
+@router.get("/login", response_class=HTMLResponse)
+def login_page(request: Request, next: str = "/dashboard", error: str = "") -> HTMLResponse:
+    if current_user(request):
+        return RedirectResponse(next or "/dashboard", status_code=303)
+    return templates.TemplateResponse(
+        request,
+        "login.html",
+        {"request": request, "next": next, "error": error, "app_name": settings.app_name, "tagline": settings.tagline},
+    )
+
+
+@router.post("/login", response_class=HTMLResponse)
+async def login_submit(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    next: str = Form("/dashboard"),
+) -> HTMLResponse:
+    if not _valid_credentials(username, password):
+        return templates.TemplateResponse(
+            request,
+            "login.html",
+            {"request": request, "next": next, "error": "Invalid username or password. Please try again.", "app_name": settings.app_name, "tagline": settings.tagline},
+            status_code=401,
+        )
+
+    request.session["user"] = {
+        "username": settings.demo_username,
+        "name": "Farmer Demo",
+        "role": "farmer",
+    }
+    return RedirectResponse(next or "/dashboard", status_code=303)
+
+
+@router.get("/logout")
+def logout(request: Request) -> RedirectResponse:
+    request.session.clear()
+    return RedirectResponse("/login", status_code=303)
 
 
 def _int(value: str | int | None, default: int = 0) -> int:
@@ -89,6 +158,8 @@ def overview(request: Request, db: Session = Depends(get_db)) -> HTMLResponse:
     marketing-style landing page. This keeps the UI feeling like a mobile app or
     desktop app shell rather than a website landing page.
     """
+    if not current_user(request):
+        return login_redirect(request, "/dashboard")
     return RedirectResponse(url="/dashboard", status_code=307)
 
 
@@ -99,8 +170,9 @@ def dashboard(
     urgent: int = 0,
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
-    # Never fall back to somebody else's farm: that would show another farmer's
-    # holdings and prices to the wrong person.
+    auth_redirect = ensure_auth(request, "/dashboard")
+    if auth_redirect:
+        return auth_redirect
     farm = db.get(models.Farm, farm_id)
     if not farm:
         raise HTTPException(404, "No such farm in this demo dataset")
@@ -160,6 +232,9 @@ def farm_doctor(
     answers: str = "",
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
+    auth_redirect = ensure_auth(request, "/farm-doctor")
+    if auth_redirect:
+        return auth_redirect
     known = {q["id"] for q in diseases.questions()}
     parsed = _parse_answers(answers)
     for key, value in request.query_params.items():
@@ -193,6 +268,9 @@ async def farm_doctor_save(
     answers: str = Form(""),
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
+    auth_redirect = ensure_auth(request, "/farm-doctor")
+    if auth_redirect:
+        return auth_redirect
     parsed = _parse_answers(answers)
     result = services.doctor_assess(parsed)
     case = models.DiseaseCase(
@@ -237,6 +315,9 @@ def when_to_sell(
     harvest: str | None = None,
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
+    auth_redirect = ensure_auth(request, "/when-to-sell")
+    if auth_redirect:
+        return auth_redirect
     farm = db.get(models.Farm, farm_id)
     if not farm:
         raise HTTPException(404, "No such farm in this demo dataset")
@@ -277,6 +358,9 @@ def when_to_sell(
 
 @router.get("/marketplace", response_class=HTMLResponse)
 def marketplace(request: Request, db: Session = Depends(get_db)) -> HTMLResponse:
+    auth_redirect = ensure_auth(request, "/marketplace")
+    if auth_redirect:
+        return auth_redirect
     suggestions = services.match_suggestions(db)
     listings = [
         {
@@ -331,6 +415,9 @@ def early_orders(
     requirement_id: int | None = None,
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
+    auth_redirect = ensure_auth(request, "/early-orders")
+    if auth_redirect:
+        return auth_redirect
     orders = [
         services.order_view(db, o)
         for o in db.scalars(select(models.EarlyOrder).order_by(models.EarlyOrder.id.desc()))
@@ -366,6 +453,9 @@ async def create_early_order(
     delivery_date: str | None = Form(None),
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
+    auth_redirect = ensure_auth(request, "/early-orders")
+    if auth_redirect:
+        return auth_redirect
     listing = db.get(models.HarvestListing, listing_id)
     req = db.get(models.BuyerRequirement, requirement_id)
     if not listing or not req:
@@ -429,6 +519,9 @@ async def create_early_order(
 
 @router.get("/orders/{reference}", response_class=HTMLResponse)
 def order_page(request: Request, reference: str, db: Session = Depends(get_db)) -> HTMLResponse:
+    auth_redirect = ensure_auth(request, "/early-orders")
+    if auth_redirect:
+        return auth_redirect
     row = db.scalars(select(models.EarlyOrder).where(models.EarlyOrder.reference == reference)).first()
     if not row:
         raise HTTPException(404, "Unknown order")
@@ -463,6 +556,9 @@ async def order_action(
     delivered_bunches: int | None = Form(None),
     db: Session = Depends(get_db),
 ) -> RedirectResponse:
+    auth_redirect = ensure_auth(request, "/early-orders")
+    if auth_redirect:
+        return auth_redirect
     row = db.scalars(select(models.EarlyOrder).where(models.EarlyOrder.reference == reference)).first()
     if not row:
         raise HTTPException(404, "Unknown order")
@@ -493,8 +589,7 @@ async def order_action(
     db.add(
         models.OrderEvent(
             order_id=row.id, kind=action, actor=actor, note=(note or "") + f" [{message}]"
-        ).strip()
-        or message
+        )
     )
     db.commit()
     return RedirectResponse(f"/orders/{reference}", status_code=303)
@@ -504,6 +599,9 @@ async def order_action(
 def opportunities_page(
     request: Request, district: str | None = None, kind: str | None = None, db: Session = Depends(get_db)
 ) -> HTMLResponse:
+    auth_redirect = ensure_auth(request, "/opportunities")
+    if auth_redirect:
+        return auth_redirect
     all_items = services.opportunity_list(db, only_current=False)
     shown = services.opportunity_list(db, district=district, kind=kind)
     hidden = [i for i in all_items if i["id"] not in {s["id"] for s in shown}]
@@ -530,6 +628,9 @@ def hub(
     target: int = 0,
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
+    auth_redirect = ensure_auth(request, "/hub")
+    if auth_redirect:
+        return auth_redirect
     svc = {s.strip() for s in services_str.split(",") if s.strip()}
     recs = services.product_recommendations(db, fresh_kg=max(_int(fresh_kg, 400), 1), services=svc)
     trials = list(db.scalars(select(models.ProductTrial).order_by(models.ProductTrial.trial_date.desc())))
@@ -567,6 +668,9 @@ def hub(
 def prices_page(
     request: Request, market_id: int | None = None, db: Session = Depends(get_db)
 ) -> HTMLResponse:
+    auth_redirect = ensure_auth(request, "/prices")
+    if auth_redirect:
+        return auth_redirect
     markets = list(db.scalars(select(models.Market).order_by(models.Market.name)))
     mid = market_id or (markets[0].id if markets else None)
     rows = []
@@ -596,6 +700,9 @@ async def record_price(
     source: str = Form("field agent"),
     db: Session = Depends(get_db),
 ) -> RedirectResponse:
+    auth_redirect = ensure_auth(request, "/prices")
+    if auth_redirect:
+        return auth_redirect
     day = _date(observed_on, date.today())
     if day and day > date.today():
         return RedirectResponse("/prices?error=future", status_code=303)
@@ -616,6 +723,9 @@ async def record_price(
 
 @router.get("/tiers", response_class=HTMLResponse)
 def tiers_page(request: Request) -> HTMLResponse:
+    auth_redirect = ensure_auth(request, "/tiers")
+    if auth_redirect:
+        return auth_redirect
     return templates.TemplateResponse(
         request,
         "tiers.html",
@@ -630,7 +740,9 @@ def tiers_page(request: Request) -> HTMLResponse:
 
 @router.post("/admin/reseed", response_class=HTMLResponse)
 def reseed(request: Request, db: Session = Depends(get_db)) -> HTMLResponse:
-    """Reset the demo dataset. Only meaningful while the data is synthetic."""
+    auth_redirect = ensure_auth(request, "/dashboard")
+    if auth_redirect:
+        return auth_redirect
     from . import seed as seed_module
 
     report = seed_module.seed(db, force=True)
@@ -639,4 +751,3 @@ def reseed(request: Request, db: Session = Depends(get_db)) -> HTMLResponse:
         "message.html",
         ctx(request, title="Demo data rebuilt", message=str(report), back="/"),
     )
-

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1b12">
+  <title>{{ app_name }} | Secure access</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body class="auth-body">
+  <div class="auth-shell">
+    <div class="auth-visual">
+      <div class="auth-glow"></div>
+      <img src="/static/images/matooke-plantation.svg" alt="Matooke plantation in Uganda">
+      <div class="auth-floating-card">
+        <span class="eyebrow">Live intelligence</span>
+        <strong>Smart selling. Higher margins.</strong>
+        <small>Price signals, surpluses, early orders and Hub demand.</small>
+      </div>
+    </div>
+
+    <div class="auth-panel">
+      <div class="brand-lockup">
+        <div class="brand-mark">M</div>
+        <div>
+          <strong>{{ app_name }}</strong>
+          <small>{{ tagline }}</small>
+        </div>
+      </div>
+
+      <div class="auth-header">
+        <span class="badge green">Secure login</span>
+        <h1>Welcome back</h1>
+        <p>Access your farm dashboard, surplus insights, and buyer opportunities.</p>
+      </div>
+
+      {% if error %}
+      <div class="flash-error">{{ error }}</div>
+      {% endif %}
+
+      <form method="post" action="/login" class="login-form">
+        <input type="hidden" name="next" value="{{ next or '/dashboard' }}">
+        <label>
+          <span>Username</span>
+          <input type="text" name="username" value="farmer" required>
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" name="password" placeholder="Enter your password" required>
+        </label>
+        <button type="submit" class="btn auth-btn">Sign in securely</button>
+      </form>
+
+      <div class="demo-box">
+        <strong>Demo access</strong>
+        <div>Username: <b>farmer</b></div>
+        <div>Password: <b>Matooke@2026!</b></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

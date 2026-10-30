@@ -7,9 +7,12 @@ Run locally:
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from urllib.parse import quote
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 
 from . import errors, pages
 from .api import router as api_router
@@ -50,12 +53,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.app_name,
-    version="0.2.0",
+    version="0.3.0",
     description=DESCRIPTION,
     lifespan=lifespan,
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
+
+app.add_middleware(SessionMiddleware, secret_key=settings.session_secret, max_age=60 * 60 * 8)
 
 if settings.cors_origins:
     from fastapi.middleware.cors import CORSMiddleware
@@ -69,6 +74,20 @@ if settings.cors_origins:
 app.add_middleware(RateLimitMiddleware)
 app.add_middleware(RequestContextMiddleware)
 errors.install(app)
+
+
+@app.middleware("http")
+async def auth_guard(request: Request, call_next):
+    path = request.url.path
+    public_paths = ("/login", "/logout", "/static", "/robots.txt", "/api", "/favicon.ico")
+    if path.startswith(public_paths):
+        return await call_next(request)
+    if not request.session.get("user"):
+        if "text/html" in request.headers.get("accept", ""):
+            return RedirectResponse(f"/login?next={quote(path or '/dashboard')}", status_code=303)
+        return JSONResponse({"detail": "Authentication required."}, status_code=401)
+    return await call_next(request)
+
 
 app.mount("/static", StaticFiles(directory=str(pages.BASE / "static")), name="static")
 app.include_router(api_router)
