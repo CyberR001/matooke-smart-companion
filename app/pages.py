@@ -85,81 +85,11 @@ def farms_with_owner(db: Session) -> list[models.Farm]:
 
 @router.get("/", response_class=HTMLResponse)
 def overview(request: Request, db: Session = Depends(get_db)) -> HTMLResponse:
-    markets = []
-    for m in db.scalars(
-        select(models.Market).where(models.Market.is_active.is_(True)).order_by(models.Market.name)
-    ):
-        last = services.latest_price(db, m.id)
-        markets.append(
-            {
-                "name": m.name,
-                "district": m.district,
-                "unit": m.unit,
-                "latest_price_ugx": last.price_ugx if last else None,
-                "latest_date": last.observed_on if last else None,
-                "verified": bool(last.verified) if last else False,
-            }
-        )
-
-    def _count(stmt) -> int:
-        return int(db.scalar(select(func.count()).select_from(stmt.subquery())) or 0)
-
-    counts = {
-        "farmers": _count(select(models.Person).where(models.Person.role == "farmer")),
-        "buyers": _count(select(models.Person).where(models.Person.role == "buyer")),
-        "markets": len(markets),
-        "price_records": int(db.scalar(select(func.count(models.PriceRecord.id))) or 0),
-        "open_orders": _count(
-            select(models.EarlyOrder).where(models.EarlyOrder.status.notin_(["settled", "cancelled"]))
-        ),
-    }
-    modules = [
-        (
-            "5.1",
-            "Farm doctor",
-            "Guided symptom questions against an expert-reviewable knowledge base; possible diagnosis, confidence, referral when unsure.",
-            "/farm-doctor",
-        ),
-        (
-            "5.2",
-            "When to sell",
-            "Moving averages, shrunk seasonal indices and a backtested trend give a price outlook plus ranked options - not just a chart.",
-            "/when-to-sell",
-        ),
-        (
-            "5.3",
-            "Surplus & products",
-            "Processing yield, cost stack, margin and an explainable product ranking; measured trials override assumptions.",
-            "/hub",
-        ),
-        (
-            "5.4",
-            "Early orders",
-            "Advance-purchase agreements with deposit, balance, disclosed fee, cancellation and crop-failure terms.",
-            "/early-orders",
-        ),
-        (
-            "5.5",
-            "Marketplace matching",
-            "Greedy, explainable matching on distance, quantity, timing, grade and price.",
-            "/marketplace",
-        ),
-        (
-            "5.6",
-            "Opportunities",
-            "Verified government and partner support with source, check date and expiry rules.",
-            "/opportunities",
-        ),
-        (
-            "5.7",
-            "Membership",
-            "Four tiers, with safety-critical information exempt from every paywall.",
-            "/tiers",
-        ),
-    ]
-    return templates.TemplateResponse(
-        request, "overview.html", ctx(request, modules=modules, counts=counts, markets=markets)
-    )
+    """Open the app straight into the operating dashboard instead of a long
+    marketing-style landing page. This keeps the UI feeling like a mobile app or
+    desktop app shell rather than a website landing page.
+    """
+    return RedirectResponse(url="/dashboard", status_code=307)
 
 
 @router.get("/dashboard", response_class=HTMLResponse)
@@ -709,3 +639,4 @@ def reseed(request: Request, db: Session = Depends(get_db)) -> HTMLResponse:
         "message.html",
         ctx(request, title="Demo data rebuilt", message=str(report), back="/"),
     )
+

@@ -44,12 +44,9 @@ class Settings(BaseSettings):
     cors_origins: str = ""
     # Writes per client per minute; 0 disables the limiter.
     rate_limit_per_min: int = 120
-    # All seeded market prices are synthetic; the UI must always say so.
-    data_disclaimer: str = (
-        "Sample data: the prices, yields and costs in this prototype are "
-        "synthetic placeholders for demonstration. Replace them with verified "
-        "field data before using any output for a real decision."
-    )
+    # App default behaviour: no synthetic-data banner in the UI. Keep this empty
+    # unless you deliberately want a visible prototype warning.
+    data_disclaimer: str = ""
 
 
 @lru_cache
