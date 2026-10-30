@@ -3,63 +3,63 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#14532d">
+  <meta name="theme-color" content="#ffffff">
   <title>{% block title %}{{ app_name }}{% endblock %}</title>
   <link rel="stylesheet" href="/static/css/app.css">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314532d'/%3E%3Cpath d='M9 21c1-8 6-12 14-12-1 8-6 12-14 12z' fill='%23facc15'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2316634a'/%3E%3Cpath d='M9 21c1-8 6-12 14-12-1 8-6 12-14 12z' fill='%23facc15'/%3E%3Cpath d='M9 21c4-3 8-6 14-12' stroke='%230f172a' stroke-width='1.1' fill='none'/%3E%3C/svg%3E">
 </head>
 <body>
-<header class="topbar">
-  <a class="brand" href="/">
-    <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
-      <rect width="32" height="32" rx="7" fill="#14532d"/>
-      <path d="M9 21c1-8 6-12 14-12-1 8-6 12-14 12z" fill="#facc15"/>
-      <path d="M9 21c4-3 8-6 14-12" stroke="#14532d" stroke-width="1.1" fill="none"/>
-    </svg>
-    <span>
-      <strong>{{ app_name }}</strong>
-      <small>{{ tagline }}</small>
-    </span>
-  </a>
-  <a class="api-link" href="/api/docs">API</a>
-</header>
+  <header class="topbar">
+    <a class="brand" href="/dashboard">
+      <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="#166534"/>
+        <path d="M9 21c1-8 6-12 14-12-1 8-6 12-14 12z" fill="#facc15"/>
+        <path d="M9 21c4-3 8-6 14-12" stroke="#0f172a" stroke-width="1.1" fill="none"/>
+      </svg>
+      <span>
+        <strong>{{ app_name }}</strong>
+        <small>{{ tagline }}</small>
+      </span>
+    </a>
+    <a class="api-link" href="/api/docs">API</a>
+  </header>
 
-<nav class="mainnav" aria-label="Sections">
-  {%- for href, label in nav %}
-  <a href="{{ href }}"{% if request and request.url.path == href %} class="active" aria-current="page"{% endif %}>{{ label }}</a>
-  {%- endfor %}
-</nav>
+  <nav class="mainnav" aria-label="Sections">
+    {%- for href, label in nav %}
+    <a href="{{ href }}"{% if request and request.url.path == href %} class="active" aria-current="page"{% endif %}>{{ label }}</a>
+    {%- endfor %}
+  </nav>
 
-<main>
-  {% if disclaimer %}
-  <p class="notice" role="note">
-    <span class="notice-icon" aria-hidden="true">!</span>
-    <span>{{ disclaimer }}</span>
-  </p>
-  {% endif %}
-  {% block content %}{% endblock %}
-</main>
+  <main>
+    {% if disclaimer %}
+    <p class="notice" role="note">
+      <span class="notice-icon" aria-hidden="true">!</span>
+      <span>{{ disclaimer }}</span>
+    </p>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
 
-<footer class="footer">
-  <p>
-    Student prototype for IST2106 Technopreneurship, Makerere University. Decision support only:
-    no medical, financial or agronomic guarantee is made. Payments and credit are not offered by
-    this software.
-  </p>
-  <p><a href="/api/docs">JSON API</a> · <a href="/api/v1/health">health</a> · <a href="/api/v1/markets">markets</a></p>
-</footer>
-<nav class="tabbar" aria-label="Quick navigation">
-  <a href="/dashboard"{% if request and request.url.path == "/dashboard" %} class="active"{% endif %}><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
-  <a href="/farm-doctor"{% if request and request.url.path == "/farm-doctor" %} class="active"{% endif %}><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg>Doctor</a>
-  <a href="/when-to-sell"{% if request and request.url.path == "/when-to-sell" %} class="active"{% endif %}><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>Sell</a>
-  <a href="/early-orders"{% if request and request.url.path == "/early-orders" %} class="active"{% endif %}><svg viewBox="0 0 24 24"><path d="M6 3h12l2 5H4zM4 8v12h16V8M9 12h6"/></svg>Orders</a>
-  <details class="more">
-    <summary><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>More</summary>
-    <div class="sheet">
-      {%- for href, label in nav %}<a href="{{ href }}">{{ label }}</a>{% endfor %}
-    </div>
-  </details>
-</nav>
-<script src="/static/js/app.js" defer></script>
+  <footer class="footer">
+    <p>
+      Decision support only. No lending, no payment collection, and no agronomic guarantee is provided by this software.
+    </p>
+    <p><a href="/api/docs">JSON API</a> · <a href="/api/v1/health">health</a> · <a href="/api/v1/markets">markets</a></p>
+  </footer>
+
+  <nav class="tabbar" aria-label="Quick navigation">
+    <a href="/dashboard"{% if request and request.url.path == "/dashboard" %} class="active"{% endif %}><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+    <a href="/farm-doctor"{% if request and request.url.path == "/farm-doctor" %} class="active"{% endif %}><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/><path d="M12 8v6M9 11h6"/></svg>Doctor</a>
+    <a href="/when-to-sell"{% if request and request.url.path == "/when-to-sell" %} class="active"{% endif %}><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>Sell</a>
+    <a href="/early-orders"{% if request and request.url.path == "/early-orders" %} class="active"{% endif %}><svg viewBox="0 0 24 24"><path d="M6 3h12l2 5H4zM4 8v12h16V8M9 12h6"/></svg>Orders</a>
+    <details class="more">
+      <summary><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>More</summary>
+      <div class="sheet">
+        {%- for href, label in nav %}<a href="{{ href }}">{{ label }}</a>{% endfor %}
+      </div>
+    </details>
+  </nav>
+
+  <script src="/static/js/app.js" defer></script>
 </body>
 </html>

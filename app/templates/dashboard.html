@@ -20,23 +20,55 @@
   </div>
 </form>
 
-<h1>{{ farm.name }}</h1>
-<p class="lede">{{ farm.owner.full_name }} · {{ farm.district }} · {{ farm.matooke_stands }} stands · tier: {{ farm.owner.tier }}</p>
+<div class="module-hero">
+  <div class="app-mini">
+    <span class="badge green">Farm status</span>
+    <h1>{{ farm.name }}</h1>
+    <p class="lede">{{ farm.owner.full_name }} · {{ farm.district }} · {{ farm.matooke_stands }} stands · tier: {{ farm.owner.tier }}</p>
+    <div class="grid cols-3">
+      <div class="stat">
+        <span class="label">Last price</span>
+        <span class="value">{{ forecast.latest_price_ugx|default('-')|ugx }}</span>
+        <span class="sub">{{ forecast.latest_day|short }} · {{ market.name }}</span>
+      </div>
+      <div class="stat">
+        <span class="label">Indicative at harvest</span>
+        <span class="value">{{ advice.price_at_harvest_ugx|default('n/a')|ugx if advice.price_at_harvest_ugx else 'n/a' }}</span>
+        <span class="sub">{{ '%+.0f' % (advice.expected_change_pct or 0) }} % vs today · {{ advice.confidence }} confidence</span>
+      </div>
+      <div class="stat">
+        <span class="label">Harvest</span>
+        <span class="value">{{ farm.expected_harvest_date|short }}</span>
+        <span class="sub">in {{ advice.days_to_harvest }} days</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="module-showcase">
+    <article class="module-tile">
+      <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=900&q=80" alt="Uganda farming field">
+      <div class="tile-copy">
+        <span class="eyebrow">Farm doctor</span>
+        <strong>Field checks</strong>
+        <p>Real-world crop and farm-health prompts from Uganda agriculture guidance.</p>
+        <a class="module-source" href="https://www.monitor.co.ug/uganda/magazines/farming/matooke-best-practices-for-growing-the-crop-1538944" target="_blank" rel="noreferrer">Source: Daily Monitor</a>
+      </div>
+    </article>
+    <article class="module-tile">
+      <img src="https://images.unsplash.com/photo-1464226184884-fa52ac9fcf4a?auto=format&fit=crop&w=900&q=80" alt="Matooke market produce">
+      <div class="tile-copy">
+        <span class="eyebrow">Market view</span>
+        <strong>Price movement</strong>
+        <p>Market trends tied to real Uganda matooke trading, storage and transport reports.</p>
+        <a class="module-source" href="https://commons.wikimedia.org/wiki/Category:Matoke_Cooking_Plantains" target="_blank" rel="noreferrer">Source: Wikimedia Commons</a>
+      </div>
+    </article>
+  </div>
+</div>
 
 <div class="card accent">
   <h2 style="margin-top:0">Sell decision</h2>
   <p style="margin:0 0 8px"><strong>{{ advice.headline }}</strong></p>
-  <div class="grid cols-3">
-    <div class="stat"><span class="label">Last recorded price</span>
-      <span class="value">{{ forecast.latest_price_ugx|default('-')|ugx }}</span>
-      <span class="sub">{{ forecast.latest_day|short }} · {{ market.name }}</span></div>
-    <div class="stat"><span class="label">Indicative at harvest</span>
-      <span class="value">{{ advice.price_at_harvest_ugx|default('n/a')|ugx if advice.price_at_harvest_ugx else 'n/a' }}</span>
-      <span class="sub">{{ '%+.0f' % (advice.expected_change_pct or 0) }} % vs today · {{ advice.confidence }} confidence</span></div>
-    <div class="stat"><span class="label">Harvest expected</span>
-      <span class="value">{{ farm.expected_harvest_date|short }}</span>
-      <span class="sub">in {{ advice.days_to_harvest }} days</span></div>
-  </div>
   {% set primary = advice.options | selectattr("key", "equalto", advice.primary_option) | first %}
   <div class="card accent" style="margin:12px 0 0;background:#f2faf4">
     <p class="small" style="margin:0">
@@ -62,7 +94,7 @@
     <div class="legend">
       <span><i class="l1"></i>recorded prices</span>
       <span><i class="l2"></i>moving average</span>
-      <span><i class="l3"></i>indicative projection (dashed)</span>
+      <span><i class="l3"></i>indicative projection</span>
     </div>
     <p class="small muted" style="margin:4px 8px 0">
       Backtested error {{ forecast.mape_pct|default('n/a') }}{{ ' %' if forecast.mape_pct is not none }} ·
