@@ -1,0 +1,263 @@
+{
+  "notice": "Every number below is a PLACEHOLDER assumption, not a market fact. Section 5.3 of the concept proposal requires trial batches to measure input weight, output weight, yield, time, spoilage and unit cost before profitability is claimed. Replace these values with measured trials (ProductTrial) and the engine will prefer the measurements over the assumptions.",
+  "cost_basis": {
+    "fresh_matooke_ugx_per_kg": 480,
+    "labour_ugx_per_hour": 2500,
+    "packaging_ugx_per_kg_default": 700
+  },
+  "products": [
+    {
+      "key": "matooke_flour",
+      "name": "Matooke flour",
+      "tagline": "Peeled, chipped, dried and milled - long shelf life, widest buyer set",
+      "yield_pct": 22.0,
+      "peel_loss_pct": 30.0,
+      "shelf_life_days": 270,
+      "complexity": 4,
+      "labour_hours_per_100kg_fresh": 22.0,
+      "energy_ugx_per_kg_output": 400,
+      "packaging_ugx_per_kg_output": 800,
+      "selling_price_ugx_per_kg": 9000,
+      "demand_signal": 0.72,
+      "demand_basis": "Assumption: steady interest from bakeries, schools and urban households; must be confirmed with buyer interviews.",
+      "process_steps": [
+        "Sort and wash; reject damaged or over-ripe fingers",
+        "Peel (manual or mechanical)",
+        "Slice into 4-8 mm chips",
+        "Optional blanch to reduce browning",
+        "Dry to below 10 % moisture: solar dome or mechanical dryer, turned regularly",
+        "Mill, sieve, pack in moisture-barrier bags with label"
+      ],
+      "equipment": [
+        "peeler or knives",
+        "chipper/slicer",
+        "solar dryer or cabinet dryer",
+        "hammer mill",
+        "moisture meter",
+        "weighing scale",
+        "impulse sealer"
+      ],
+      "skills": [
+        "moisture control",
+        "hygiene in drying",
+        "mill operation"
+      ],
+      "quality_spec": "Off-white to cream flour, no dark specks, moisture <= 10 %, no rancid or fermented smell, 500 g / 1 kg / 5 kg sealed packs",
+      "food_safety": [
+        "Processed product needs a UNBS quality mark / Usafe-type certificate for pre-packaged sale",
+        "Registration with the food authority is required for a processing premises",
+        "Labelling must show product name, net weight, ingredients,batch lot, packing date and best-before"
+      ],
+      "buyers": [
+        "Bakeries",
+        "School feeding programmes",
+        "Retail shops",
+        "Households in towns",
+        "Diaspora/export gift packs"
+      ],
+      "capital_note": "Dryer plus mill is the main capital item; a partner mill can be used at first instead of buying one.",
+      "risks": [
+        "Sun drying on open ground risks dust, insects and aflatoxin-type mould if drying is slow",
+        "Moisture above 10 % leads to caking and spoilage in the pack"
+      ],
+      "sourcing_note": "Margin depends on buying fresh material cheaply - typically farmgate in a glut month. At Kampala market prices for a bunch, flour milling does not pay; the 'when to sell' module and this module have to be read together."
+    },
+    {
+      "key": "dried_matooke_chips",
+      "name": "Dried matooke chips (unsweetened)",
+      "tagline": "Simplest route: slice, dry, pack - can be cooked by the end buyer",
+      "yield_pct": 26.0,
+      "peel_loss_pct": 30.0,
+      "shelf_life_days": 180,
+      "complexity": 2,
+      "labour_hours_per_100kg_fresh": 16.0,
+      "energy_ugx_per_kg_output": 150,
+      "packaging_ugx_per_kg_output": 600,
+      "selling_price_ugx_per_kg": 5600,
+      "demand_signal": 0.55,
+      "demand_basis": "Assumption: sold in local markets and to households that already know the product; needs a demand check before scaling.",
+      "process_steps": [
+        "Peel and slice thick (8-12 mm)",
+        "Soak briefly in clean water to remove latex",
+        "Solar dry on raised mesh trays, turned twice a day",
+        "Sort by size and colour, pack in sealed bags"
+      ],
+      "equipment": [
+        "raised drying trays",
+        "solar dome or shaded airy shed",
+        "knife or slicer",
+        "scale",
+        "sealer"
+      ],
+      "skills": [
+        "hygiene",
+        "even drying",
+        "sorting"
+      ],
+      "quality_spec": "Even cream colour, no mould, no insect damage, snaps rather than bends when properly dry",
+      "food_safety": [
+        "Drying surfaces must be food-grade and off the ground",
+        "Batch record with input weight, output weight, date and operator"
+      ],
+      "buyers": [
+        "Local markets",
+        "Restaurants",
+        "Travel/working-crowd snack sellers"
+      ],
+      "capital_note": "Lowest capital of the listed options - a good first trial product for a farmer group.",
+      "risks": [
+        "Rainy-season drying failure",
+        "Slow drying invites mould"
+      ]
+    },
+    {
+      "key": "matooke_crisps",
+      "name": "Fried matooke crisps (salted, packaged)",
+      "tagline": "Highest price per kg, but needs frying control and a real brand",
+      "yield_pct": 30.0,
+      "peel_loss_pct": 30.0,
+      "shelf_life_days": 90,
+      "complexity": 3,
+      "labour_hours_per_100kg_fresh": 22.0,
+      "energy_ugx_per_kg_output": 1300,
+      "packaging_ugx_per_kg_output": 1500,
+      "selling_price_ugx_per_kg": 12000,
+      "demand_signal": 0.63,
+      "demand_basis": "Assumption: snack aisle and event catering demand exists but is competitive with potato crisps; test small packs first.",
+      "process_steps": [
+        "Select firm mature fingers, peel, slice 1.5-2 mm",
+        "Blanch or soak, drain and dry surface moisture",
+        "Fry in clean palm/vegetable oil at 150-165 C",
+        "Drain, salt/season, cool fully before packing",
+        "Pack in metallised moisture-barrier bags with nitrogen if affordable"
+      ],
+      "equipment": [
+        "slicer",
+        "fryer with temperature control",
+        "drain/de-oiler",
+        "cooling trays",
+        "sealer"
+      ],
+      "skills": [
+        "oil temperature control",
+        "oil change discipline",
+        "pack sealing"
+      ],
+      "quality_spec": "Uniform golden colour, low grease feel, crisp texture, no rancid smell, intact pieces >= 85 % by weight",
+      "food_safety": [
+        "Oil must be monitored for reuse limits (polar compounds / smoke point) - a real food-safety issue",
+        "Rancidity is the main shelf-life risk; light and oxygen must be excluded"
+      ],
+      "buyers": [
+        "Shops and bottle bars",
+        "Event caterers",
+        "Campus and taxi-park retail",
+        "Supermarket snack aisle"
+      ],
+      "capital_note": "Moderate equipment, high packaging and branding cost per kg sold.",
+      "risks": [
+        "Oil cost and quality drift",
+        "Returns from stale or broken product"
+      ]
+    },
+    {
+      "key": "matooke_porridge_blend",
+      "name": "Matooke-porridge blend flour (family / child feeding)",
+      "tagline": "Flour blended with soya and amaranth - value from the blend, not the matooke",
+      "yield_pct": 24.0,
+      "peel_loss_pct": 30.0,
+      "shelf_life_days": 240,
+      "complexity": 4,
+      "labour_hours_per_100kg_fresh": 30.0,
+      "energy_ugx_per_kg_output": 520,
+      "packaging_ugx_per_kg_output": 1100,
+      "additive_cost_ugx_per_kg_output": 1400,
+      "additives": "Roasted soya flour and amaranth/flaxseed at agreed ratios (fixed recipe, batch-recorded)",
+      "selling_price_ugx_per_kg": 10000,
+      "demand_signal": 0.58,
+      "demand_basis": "Assumption: NGOs, health-worker channels and urban mothers; any nutrition claim requires approval - do not print one.",
+      "process_steps": [
+        "Produce matooke flour as above",
+        "Roast and mill soya separately",
+        "Blend to a fixed recipe with a calibrated scale",
+        "Sieve, pack, label with full ingredient list and allergen statement"
+      ],
+      "equipment": [
+        "as for flour",
+        "roaster",
+        "blender/mixer",
+        "scale with 1 g resolution"
+      ],
+      "skills": [
+        "recipe control",
+        "allergen management",
+        "label drafting"
+      ],
+      "quality_spec": "Consistent composition between batches, no lumps, declared soya allergen on label",
+      "food_safety": [
+        "Any fortified/infant-positioning product draws extra scrutiny: get the recipe, labelling and claims reviewed before sale",
+        "Do not state that it treats or prevents malnutrition"
+      ],
+      "buyers": [
+        "Health facility shops",
+        "NGO procurement (only after tender registration)",
+        "Urban retail"
+      ],
+      "capital_note": "Blend precision matters more than machinery here.",
+      "risks": [
+        "Batch-to-batch variation destroys trust",
+        "Claims that are not approved create legal exposure"
+      ]
+    },
+    {
+      "key": "parboiled_frozen_matooke",
+      "name": "Peeled parboiled matooke (frozen)",
+      "tagline": "Convenience for kitchens - but only where cold chain is reliable",
+      "yield_pct": 68.0,
+      "peel_loss_pct": 30.0,
+      "shelf_life_days": 300,
+      "complexity": 5,
+      "labour_hours_per_100kg_fresh": 18.0,
+      "energy_ugx_per_kg_output": 900,
+      "packaging_ugx_per_kg_output": 800,
+      "cold_chain_ugx_per_kg": 1100,
+      "selling_price_ugx_per_kg": 3600,
+      "demand_signal": 0.44,
+      "demand_basis": "Assumption: hotels and caterers value labour savings; power cuts and freezer cost kill margins without a reliable chain.",
+      "process_steps": [
+        "Peel into acidulated water",
+        "Parboil to agreed time, cool fast in clean cold water",
+        "Drain, pack by weight, blast freeze, keep at -18 C",
+        "Deliver in insulated boxes with temperature log"
+      ],
+      "equipment": [
+        "boiler/blancher",
+        "blast freezer",
+        "cold room",
+        "insulated delivery boxes",
+        "thermometer/logger"
+      ],
+      "skills": [
+        "blanch timing",
+        "cold-chain discipline",
+        "temperature record keeping"
+      ],
+      "quality_spec": "Firm texture, no browning, core temperature <= -18 C on delivery, no thaw-refreeze",
+      "food_safety": [
+        "Temperature abuse is the main hazard; a broken chain means the batch is not sold as frozen product"
+      ],
+      "buyers": [
+        "Hotels",
+        "Caterers",
+        "Restaurants",
+        "Institutional kitchens"
+      ],
+      "capital_note": "Highest capital and running cost of the options; do not attempt before a signed buyer.",
+      "risks": [
+        "Power failure",
+        "Freezer and transport cost per kg",
+        "Low price ceiling"
+      ]
+    }
+  ]
+}

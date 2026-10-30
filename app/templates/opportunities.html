@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Opportunities - {{ app_name }}{% endblock %}
+{% block content %}
+<h1>Government and partner opportunities</h1>
+<p class="lede">
+  Section 5.6. Subsidised suckers, inputs, training, standards support. Nothing here is scraped and
+  trusted automatically: a MatookeSmart officer checks each notice, and the check date travels with it.
+</p>
+
+<form method="get" action="/opportunities" class="card">
+  <div class="row cols">
+    <div>
+      <label for="district">District</label>
+      <select id="district" name="district">
+        <option value="">All districts</option>
+        {% for d in districts %}<option value="{{ d }}" {% if d == district %}selected{% endif %}>{{ d }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="kind">Type</label>
+      <select id="kind" name="kind">
+        <option value="">All types</option>
+        {% for k in kinds %}<option value="{{ k }}" {% if k == kind %}selected{% endif %}>{{ k|replace('_',' ') }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="actions-row" style="align-items:flex-end"><button type="submit">Filter</button></div>
+  </div>
+</form>
+
+{% if items %}
+{% for o in items %}
+<div class="card {% if o.effective.may_show_as_current %}accent{% else %}warn{% endif %}">
+  <h3 style="margin-top:0">{{ o.title }}</h3>
+  <p class="pill-list" style="margin:0 0 6px">
+    <span class="badge">{{ o.kind_label }}</span>
+    <span class="badge {% if o.effective.status == 'closing_soon' %}amber{% elif o.effective.status in ['expired','unverified','needs_recheck'] %}red{% else %}green{% endif %}">{{ o.effective.status|replace('_',' ') }}</span>
+    {% if o.deadline %}<span class="badge grey">deadline {{ o.deadline|day }}</span>{% endif %}
+    {% if o.districts %}<span class="badge grey">{{ o.districts|join(', ') }}</span>{% endif %}
+  </p>
+  <p class="small" style="margin:0 0 8px">{{ o.summary }}</p>
+  {% if o.eligibility %}<p class="small"><strong>Who qualifies:</strong> {{ o.eligibility }}</p>{% endif %}
+  {% if o.how_to_apply %}<p class="small"><strong>How to apply:</strong> {{ o.how_to_apply }}</p>{% endif %}
+  <p class="small muted" style="margin:8px 0 0">Source: {{ o.source_line }}
+    {% if o.source_url %} · <a href="{{ o.source_url }}" rel="noopener" target="_blank">official page</a>{% endif %}</p>
+  {% for f in o.effective.flags %}<p class="small" style="margin:6px 0 0"><span class="badge red">check</span> {{ f }}</p>{% endfor %}
+</div>
+{% endfor %}
+{% else %}
+<div class="card"><p class="small muted" style="margin:0">Nothing current matches this filter. Expired notices are hidden from the main list rather than shown as if they were live.</p></div>
+{% endif %}
+
+{% if held_back %}
+<h2>Held back from the list</h2>
+<ul class="clean card">
+  {% for o in held_back %}
+  <li>
+    <strong>{{ o.title }}</strong> <span class="badge grey">{{ o.effective.status|replace('_',' ') }}</span>
+    <div class="small muted">{{ o.effective.flags|join(' ') }}</div>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<div class="card">
+  <h3 style="margin-top:0">Rules the module enforces</h3>
+  <ul class="tight">
+    <li>An unverified notice is labelled <em>unverified</em> and never shown as current.</li>
+    <li>Past a deadline, a notice is expired and removed from the main list.</li>
+    <li>A verified notice older than 120 days becomes <em>needs_recheck</em>.</li>
+    <li>Source and date checked are rendered with every item, so a farmer can verify independently.</li>
+    <li>Anything asking farmers to pay a "processing fee" is reported, not published.</li>
+  </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Marketplace - {{ app_name }}{% endblock %}
+{% block content %}
+<h1>Marketplace and buyer matching</h1>
+<p class="lede">
+  Section 5.5. Farmers list standing or expected produce, buyers post what they need, and the matcher
+  ranks pairs by distance, quantity, timing, grade and price - showing its working so either side can
+  disagree with it.
+</p>
+
+<div class="grid cols-3">
+  <div class="stat"><span class="label">Open listings</span><span class="value">{{ report.open_listings }}</span><span class="sub">from farmers</span></div>
+  <div class="stat"><span class="label">Open requirements</span><span class="value">{{ report.open_requirements }}</span><span class="sub">from buyers</span></div>
+  <div class="stat"><span class="label">Bunches committed</span><span class="value">{{ report.bunches_committed }}</span><span class="sub">{{ report.note }}</span></div>
+</div>
+
+<h2>Suggested matches</h2>
+{% if suggestions %}
+{% for s in suggestions %}
+<div class="card accent">
+  <h3>{{ s.farmer_name }} &rarr; {{ s.buyer_name }}
+    <span class="badge green">{{ '%.0f'|format(s.score * 100) }} fit</span></h3>
+  <div class="kv">
+    <div><dt>Quantity</dt><dd>{{ s.quantity_bunches }} bunches</dd></div>
+    <div><dt>Suggested price</dt><dd>{{ s.suggested_price_ugx_per_bunch|ugx }} per bunch</dd></div>
+    <div><dt>Order value</dt><dd>{{ s.order_value_ugx|ugx }}</dd></div>
+    <div><dt>Distance</dt><dd>{{ '%.0f km'|format(s.distance_km) if s.distance_km else 'not known' }}</dd></div>
+  </div>
+  <div class="score" style="margin-top:8px">
+    {% for name, val in s.components.items() %}
+    <span class="contrib">{{ name }}</span>
+    <span class="bar" style="max-width:120px"><i style="width:{{ (val * 100)|round }}%"></i></span>
+    {% endfor %}
+  </div>
+  <ul class="tight">{% for e in s.explanations %}<li>{{ e }}</li>{% endfor %}</ul>
+  <div class="actions-row">
+    <a class="btn small" href="/early-orders?listing_id={{ s.listing_id }}&requirement_id={{ s.requirement_id }}">Turn into an early order</a>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="card"><p class="small muted" style="margin:0">No pair scores above the 0.35 threshold right now. That is information too: either the price gap is real, or the timing does not line up.</p></div>
+{% endif %}
+
+<div class="grid cols-2">
+  <div class="card">
+    <h3 style="margin-top:0">Farmer listings</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Farmers</th><th>District</th><th class="right">Available</th><th class="right">Harvest</th><th class="right">Ask</th><th>Grade</th></tr></thead>
+        <tbody>
+          {% for l in listings %}
+          <tr>
+            <td>{{ l.farmer }}<br><span class="small muted">{{ l.confidence }} estimate{% if l.status != 'open' %} · {{ l.status }}{% endif %}</span></td>
+            <td>{{ l.district }}</td>
+            <td class="num">{{ l.available }}<br><span class="small muted">of {{ l.quantity_bunches }}</span></td>
+            <td class="num">{{ l.harvest|short }}</td>
+            <td class="num">{{ l.price|ugx }}</td>
+            <td>{{ l.grade }}</td>
+          </tr>
+          {% if l.notes %}<tr><td colspan="6" class="small muted" style="padding-top:0">{{ l.notes }}</td></tr>{% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Buyer requirements</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Buyer</th><th>District</th><th class="right">Needs</th><th class="right">By</th><th class="right">Ceiling</th><th>Terms</th></tr></thead>
+        <tbody>
+          {% for r in requirements %}
+          <tr>
+            <td>{{ r.buyer }}</td>
+            <td>{{ r.district }}</td>
+            <td class="num">{{ r.quantity_bunches }}</td>
+            <td class="num">{{ r.needed_by|short }}</td>
+            <td class="num">{{ r.max_price|ugx }}</td>
+            <td class="small">
+              {% if r.recurring %}<span class="badge green">weekly</span>{% endif %}
+              {% if r.deposit %}<span class="badge amber">{{ r.deposit|round(0)|int }} % deposit</span>{% endif %}
+              <span class="badge grey">{{ r.grade }} min</span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">How matching is decided</h3>
+  <p class="small muted" style="margin:0">
+    Weights: proximity 30 %, quantity 25 %, timing 20 %, price 15 %, grade 10 %. A greedy one-pass
+    allocation lets one listing serve several buyers until its uncommitted quantity runs out, and fresh
+    matooke is only treated as a fit if harvest lands within 21 days of the needed date. District
+    centroids are approximate and used for ordering only, never for navigation.
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ order.reference }} - early order{% endblock %}
+{% block content %}
+<h1>{{ order.reference }}</h1>
+<p class="lede">
+  <span class="badge {% if view.status == 'settled' %}green{% elif view.status in ['cancelled','disputed'] %}red{% else %}amber{% endif %}">{{ view.status|replace('_',' ') }}</span>
+  {{ view.farmer }} &rarr; {{ view.buyer }} · {{ view.district }} · deliver {{ view.delivery_date|short }}
+</p>
+
+<div class="grid cols-2">
+  <div class="card accent">
+    <h3 style="margin-top:0">Agreed terms</h3>
+    <div class="kv">
+      <div><dt>Quantity</dt><dd>{{ view.quantity_bunches }} bunches</dd></div>
+      <div><dt>Price</dt><dd>{{ view.price_per_bunch_ugx|ugx }} per bunch</dd></div>
+      <div><dt>Grade</dt><dd>{{ view.grade }}</dd></div>
+      <div><dt>Total value</dt><dd>{{ view.total_value_ugx|ugx }}</dd></div>
+      <div><dt>Deposit</dt><dd>{{ view.deposit_pct|round(0)|int }} % = {{ view.advance_ugx|ugx }}</dd></div>
+      <div><dt>Advance paid</dt><dd>{{ view.advance_paid_ugx|ugx }}</dd></div>
+      <div><dt>Balance due on delivery</dt><dd>{{ view.balance_due_ugx|ugx }}</dd></div>
+      <div><dt>Platform fee (disclosed)</dt><dd>{{ view.service_fee_ugx|ugx }}</dd></div>
+      <div><dt>Farmer keeps</dt><dd>{{ view.farmer_net_ugx|ugx }}</dd></div>
+      <div><dt>Per hand (at 17 hands)</dt><dd>{{ (view.price_per_bunch_ugx / 17)|round(0)|int }} UGX</dd></div>
+    </div>
+    <p class="small muted" style="margin:10px 0 0">{{ view.payment_note }}</p>
+    <p class="small" style="margin:8px 0 0"><strong>Cancellation:</strong> {{ view.cancellation_rule }}</p>
+    {% if view.crop_failure_declared %}<p class="small"><span class="badge red">crop failure declared</span> see the event log below for the agreed next step.</p>{% endif %}
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Move the order forward</h3>
+    <form method="post" action="/orders/{{ order.reference }}/action">
+      <label for="action">Action</label>
+      <select id="action" name="action">
+        {% for a in actions %}<option value="{{ a }}">{{ a|replace('_',' ') }}{% if a not in next_status and a != 'cancel' %} (not allowed now){% endif %}</option>{% endfor %}
+      </select>
+      <p class="help">Allowed from <em>{{ view.status }}</em>: {{ next_status|join(', ') or 'nothing - this order is closed' }}</p>
+      <div class="row cols" style="margin-top:8px">
+        <div>
+          <label for="actor">Who is acting</label>
+          <input id="actor" name="actor" value="farmer">
+        </div>
+        <div>
+          <label for="note">Note for the record</label>
+          <input id="note" name="note" placeholder="e.g. buyer agreed to shift delivery two days">
+        </div>
+        <div>
+          <label for="delivered_bunches">Bunches delivered (only when settling)</label>
+          <input id="delivered_bunches" name="delivered_bunches" type="number" min="0" placeholder="{{ view.quantity_bunches }}">
+        </div>
+      </div>
+      <div class="actions-row"><button type="submit">Record it</button></div>
+    </form>
+    <p class="help">An invalid step is refused with the reason, not silently accepted.</p>
+  </div>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">Event log</h3>
+  <ol class="timeline">
+    {% for e in view.events %}
+    <li>
+      <span class="when">{{ e.at.strftime('%d %b %Y %H:%M') if e.at else '' }} · {{ e.actor }}</span>
+      <strong>{{ e.kind|replace('_',' ') }}</strong>
+      {% if e.note %}<div class="small muted">{{ e.note }}</div>{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</div>
+<p class="small muted"><a href="/early-orders">Back to early orders</a> · machine-readable version at <a href="/api/v1/orders/{{ order.reference }}">/api/v1/orders/{{ order.reference }}</a></p>
+{% endblock %}

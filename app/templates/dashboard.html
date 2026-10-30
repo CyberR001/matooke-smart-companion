@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Farmer home - {{ app_name }}{% endblock %}
+{% block content %}
+<form method="get" action="/dashboard" class="card">
+  <div class="row cols">
+    <div>
+      <label for="farm_id">Farm</label>
+      <select id="farm_id" name="farm_id" onchange="this.form.submit()">
+        {% for f in farms %}
+        <option value="{{ f.id }}" {% if f.id == farm.id %}selected{% endif %}>{{ f.owner.full_name }} - {{ f.name }} ({{ f.district }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="urgent">Urgent cash need (UGX, optional)</label>
+      <input id="urgent" name="urgent" type="number" min="0" step="10000" value="{{ urgent if urgent else '' }}" placeholder="e.g. 250000">
+      <p class="help">Used only to rank which route gives you money soonest. Nothing here is a loan offer.</p>
+    </div>
+    <div class="actions-row"><button type="submit">Recalculate</button></div>
+  </div>
+</form>
+
+<h1>{{ farm.name }}</h1>
+<p class="lede">{{ farm.owner.full_name }} · {{ farm.district }} · {{ farm.matooke_stands }} stands · tier: {{ farm.owner.tier }}</p>
+
+<div class="card accent">
+  <h2 style="margin-top:0">Sell decision</h2>
+  <p style="margin:0 0 8px"><strong>{{ advice.headline }}</strong></p>
+  <div class="grid cols-3">
+    <div class="stat"><span class="label">Last recorded price</span>
+      <span class="value">{{ forecast.latest_price_ugx|default('-')|ugx }}</span>
+      <span class="sub">{{ forecast.latest_day|short }} · {{ market.name }}</span></div>
+    <div class="stat"><span class="label">Indicative at harvest</span>
+      <span class="value">{{ advice.price_at_harvest_ugx|default('n/a')|ugx if advice.price_at_harvest_ugx else 'n/a' }}</span>
+      <span class="sub">{{ '%+.0f' % (advice.expected_change_pct or 0) }} % vs today · {{ advice.confidence }} confidence</span></div>
+    <div class="stat"><span class="label">Harvest expected</span>
+      <span class="value">{{ farm.expected_harvest_date|short }}</span>
+      <span class="sub">in {{ advice.days_to_harvest }} days</span></div>
+  </div>
+  {% set primary = advice.options | selectattr("key", "equalto", advice.primary_option) | first %}
+  <div class="card accent" style="margin:12px 0 0;background:#f2faf4">
+    <p class="small" style="margin:0">
+      <span class="badge green">suggested route</span>
+      <strong>{{ primary.label if primary else advice.primary_option|replace('_',' ') }}</strong>
+      {% if primary %}
+      <br><span class="muted">about {{ primary.expected_net_ugx|ugx }} net, with {{ primary.cash_now_ugx|ugx }} available immediately.</span>
+      {% endif %}
+    </p>
+  </div>
+  {% if advice.urgent_need_note %}<p class="small" style="margin:10px 0 0">{{ advice.urgent_need_note }}</p>{% endif %}
+  <div class="actions-row">
+    <a class="btn small" href="/when-to-sell?family_id={{ farm.id }}&horizon=60&urgent={{ urgent }}">Full options and trend</a>
+    <a class="btn small secondary" href="/early-orders">Early orders</a>
+    <a class="btn small secondary" href="/hub">Processing options</a>
+  </div>
+</div>
+
+<div class="grid cols-2">
+  <div class="card chart-card">
+    <h3 style="padding:0 8px">Price trend and projection</h3>
+    {{ chart|pricechart(unit='UGX per bunch', title=market.name) }}
+    <div class="legend">
+      <span><i class="l1"></i>recorded prices</span>
+      <span><i class="l2"></i>moving average</span>
+      <span><i class="l3"></i>indicative projection (dashed)</span>
+    </div>
+    <p class="small muted" style="margin:4px 8px 0">
+      Backtested error {{ forecast.mape_pct|default('n/a') }}{{ ' %' if forecast.mape_pct is not none }} ·
+      {{ forecast.n_records }} records ({{ forecast.n_verified }} verified) · seasonal and trend model, not a guarantee.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Farm health</h3>
+    {% if cases %}
+    <ul class="clean">
+      {% for c in cases %}
+      <li>
+        <span class="badge {% if c.referred %}amber{% else %}green{% endif %}">{{ 'referred to officer' if c.referred else 'handled' }}</span>
+        <div class="small muted">{{ c.created_at.strftime('%d %b %Y') if c.created_at else '' }} · {{ c.expert_outcome or 'no expert outcome recorded yet' }}</div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="small muted">No farm-doctor cases recorded yet.</p>
+    {% endif %}
+    {% for a in advice.alerts %}<p class="small" style="margin:8px 0 0"><span class="badge amber">alert</span> {{ a }}</p>{% endfor %}
+    <div class="actions-row"><a class="btn small" href="/farm-doctor">Ask the farm doctor</a></div>
+  </div>
+</div>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h3>Early-order opportunities</h3>
+    {% if matches %}
+    <ul class="clean">
+      {% for s in matches %}
+      <li>
+        <strong>{{ s.buyer_name }}</strong> wants {{ s.quantity_bunches }} bunches by {{ s.order_value_ugx|ugx }}
+        <div class="small muted">{{ s.district_pair }} · {{ s.timing_note }}</div>
+        <div class="score"><div class="bar"><i style="width:{{ (s.score * 100)|round }}%"></i></div><span class="contrib">{{ '%.0f'|format(s.score * 100) }} fit</span></div>
+        <div class="actions-row"><a class="btn small" href="/early-orders?listing_id={{ s.listing_id }}&requirement_id={{ s.requirement_id }}">Draft order</a></div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="small muted">No open buyer requirement currently fits this farm's listing.</p>
+    {% endif %}
+    {% for o in orders %}
+    <p class="small" style="margin:8px 0 0">
+      <a href="/orders/{{ o.reference }}">{{ o.reference }}</a> ·
+      <span class="badge">{{ o.status|replace('_',' ') }}</span>
+      advance {{ o.advance_paid_ugx|ugx }} · balance {{ o.balance_due_ugx|ugx }}
+    </p>
+    {% endfor %}
+  </div>
+
+  <div class="card">
+    <h3>Hub and support</h3>
+    {% if hub_notices %}
+    <ul class="clean">
+      {% for n in hub_notices %}
+      <li><strong>{{ n.title }}</strong>
+        <div class="small">{{ n.quantity_kg }} kg · {{ n.price_ugx_per_unit|ugx }} {{ n.price_basis }} · {{ n.district }}
+          {% if n.closes_on %} · closes {{ n.closes_on|short }}{% endif %}</div>
+        <div class="small muted">{{ n.quality_spec }}</div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="small muted">The Hub is not publishing buying requirements today.</p>{% endif %}
+
+    {% if opportunities %}
+    <h3 style="margin-top:14px">Verified opportunities near {{ farm.district }}</h3>
+    <ul class="clean">
+      {% for o in opportunities %}
+      <li><a href="/opportunities">{{ o.title }}</a>
+        <div class="small muted">{{ o.effective.status|replace('_',' ') }} · {{ o.source_line }}</div></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="actions-row"><a class="btn small secondary" href="/opportunities">All opportunities</a></div>
+  </div>
+</div>
+
+<div class="card warn">
+  <h3 style="margin-top:0">How to read this screen</h3>
+  <ul class="tight">
+    <li>Prices come from recorded observations ({{ forecast.n_verified }} of {{ forecast.n_records }} verified) and, in this demo, from synthetic sample data.</li>
+    <li>The projection is an estimate with a range. Low confidence means: do not plan a hold around it.</li>
+    <li>Processing figures use measured trials where they exist and labelled assumptions elsewhere.</li>
+    <li>An early order is a sale agreed in advance, not credit. MatookeSmart does not lend and does not hold your money.</li>
+  </ul>
+</div>
+{% endblock %}

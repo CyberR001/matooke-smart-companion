@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }} - venture prototype{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">{{ tagline }}</p>
+  <h1>One connected system for the matooke value chain</h1>
+  <p>Know what is wrong on the farm, when to sell, who will pre-buy your harvest, and what to do with surplus.</p>
+  <div class="actions-row">
+    <a class="btn accent" href="/dashboard">Open farmer home</a>
+    <a class="btn ghost" href="/system">How it fits together</a>
+  </div>
+</section>
+
+<div class="grid cols-3">
+  <div class="stat"><span class="label">Farmers on file</span><span class="value">{{ counts.farmers }}</span><span class="sub">sample profiles</span></div>
+  <div class="stat"><span class="label">Buyers / institutions</span><span class="value">{{ counts.buyers }}</span><span class="sub">with open requirements</span></div>
+  <div class="stat"><span class="label">Markets tracked</span><span class="value">{{ counts.markets }}</span><span class="sub">{{ counts.price_records }} price records</span></div>
+  <div class="stat"><span class="label">Early orders</span><span class="value">{{ counts.open_orders }}</span><span class="sub">in progress</span></div>
+</div>
+
+<h2>Modules</h2>
+<div class="grid cols-2">
+  {% for ref, name, blurb, href in modules %}
+  <div class="card accent">
+    <h3><a href="{{ href }}">{{ name }}</a> <span class="badge grey">proposal §{{ ref }}</span></h3>
+    <p class="small muted" style="margin:0">{{ blurb }}</p>
+  </div>
+  {% endfor %}
+</div>
+
+<h2>Markets being followed</h2>
+<div class="table-wrap card">
+  <table>
+    <thead><tr><th>Market</th><th>District</th><th>Unit</th><th class="right">Latest price</th><th class="right">Data</th></tr></thead>
+    <tbody>
+      {% for m in markets %}
+      <tr>
+        <td>{{ m.name }}</td>
+        <td>{{ m.district }}</td>
+        <td>{{ m.unit }}</td>
+        <td class="num">{% if m.latest_price_ugx %}{{ m.latest_price_ugx|ugx }}{% else %}-{% endif %}
+          <br><span class="small muted">{{ m.latest_date|short }}</span></td>
+        <td class="right"><span class="badge synth">synthetic</span>
+          <br><span class="small muted">{% if m.verified %}supervisor checked{% else %}unchecked{% endif %}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="small muted">
+  Read the market, model and limits documentation in <span class="mono">docs/</span>: architecture, the
+  module-to-code map, the data contract, responsible-AI limits and the validation plan. The prototype
+  records what it predicted (<span class="mono">forecast_run</span>) so accuracy can be graded later.
+</p>
+
+<div class="actions-row">
+  <a class="btn" href="/dashboard">Open farmer home</a>
+  <a class="btn secondary" href="/farm-doctor">Farm doctor</a>
+  <a class="btn secondary" href="/when-to-sell">When to sell</a>
+  <a class="btn secondary" href="/early-orders">Early orders</a>
+</div>
+{% endblock %}

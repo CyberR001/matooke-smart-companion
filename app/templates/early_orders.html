@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Early orders - {{ app_name }}{% endblock %}
+{% block content %}
+<h1>Early orders and pre-bookings</h1>
+<p class="lede">
+  Section 5.4. When a farmer needs money before harvest, a buyer can reserve the future crop at an agreed
+  price and pay a deposit. This is an advance sale, not a loan: no interest is charged, MatookeSmart does
+  not hold the money, and both sides' risks are written into the terms.
+</p>
+
+<div class="card warn">
+  <h3 style="margin-top:0">Standing terms shown to both parties</h3>
+  <p class="small" style="margin:0">{{ cancellation }}</p>
+  <p class="small muted" style="margin:8px 0 0">Deposits are capped at {{ max_deposit|round(0)|int }} %: more than that moves all the risk onto the buyer and needs a custody service we are not licensed to provide.</p>
+</div>
+
+<h2>Orders</h2>
+{% if orders %}
+<div class="table-wrap card">
+  <table>
+    <thead><tr><th>Reference</th><th>Farmer / buyer</th><th class="right">Quantity</th><th class="right">Price</th><th class="right">Advance</th><th class="right">Balance</th><th class="right">Delivery</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for o in orders %}
+      <tr>
+        <td><a href="/orders/{{ o.reference }}">{{ o.reference }}</a></td>
+        <td>{{ o.farmer }}<br><span class="small muted">{{ o.buyer }} · {{ o.district }}</span></td>
+        <td class="num">{{ o.quantity_bunches }}</td>
+        <td class="num">{{ o.price_per_bunch_ugx|ugx }}</td>
+        <td class="num">{{ o.advance_paid_ugx|ugx }}<br><span class="small muted">{{ o.deposit_pct|round(0)|int }} %</span></td>
+        <td class="num">{{ o.balance_due_ugx|ugx }}</td>
+        <td class="num">{{ o.delivery_date|short }}</td>
+        <td><span class="badge {% if o.status in ['settled'] %}green{% elif o.status in ['cancelled','disputed'] %}red{% else %}amber{% endif %}">{{ o.status|replace('_',' ') }}</span>
+          {% if o.crop_failure_declared %}<span class="badge red">crop failure declared</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="small muted">No orders yet.</p>
+{% endif %}
+
+<h2>Draft an order from a listing and a requirement</h2>
+<form method="post" action="/early-orders" class="card">
+  <div class="row cols">
+    <div>
+      <label for="listing_id">Farmer listing</label>
+      <select id="listing_id" name="listing_id" required>
+        {% for l in listings %}
+        <option value="{{ l.id }}" {% if l.id == prefill_listing %}selected{% endif %}>
+          {{ l.seller.full_name }} · {{ l.quantity_bunches - l.committed_bunches }}/{{ l.quantity_bunches }} bunches ·
+          harvest {{ l.expected_harvest_date|short }} · {{ l.asking_price_ugx_per_bunch|ugx }} · {{ l.quantity_confidence }} estimate
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="requirement_id">Buyer requirement</label>
+      <select id="requirement_id" name="requirement_id" required>
+        {% for r in requirements %}
+        <option value="{{ r.id }}" {% if r.id == prefill_req %}selected{% endif %}>
+          {{ r.organisation or r.buyer.full_name }} · {{ r.quantity_bunches }} bunches by {{ r.needed_by|short }} ·
+          up to {{ r.max_price_ugx_per_bunch|ugx }}{% if r.willing_deposit_pct %} · will pay {{ r.willing_deposit_pct|round(0)|int }} % deposit{% endif %}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="quantity_bunches">Quantity (bunches)</label>
+      <input id="quantity_bunches" name="quantity_bunches" type="number" min="1" placeholder="e.g. 60" required>
+    </div>
+    <div>
+      <label for="price_per_bunch_ugx">Agreed price (UGX per bunch)</label>
+      <input id="price_per_bunch_ugx" name="price_per_bunch_ugx" type="number" min="1000" step="500" placeholder="e.g. 33000" required>
+    </div>
+    <div>
+      <label for="deposit_pct">Deposit (%)</label>
+      <input id="deposit_pct" name="deposit_pct" type="number" min="0" max="{{ max_deposit|round(0)|int }}" step="5" value="25">
+    </div>
+    <div>
+      <label for="commission_pct">Platform fee (%)</label>
+      <input id="commission_pct" name="commission_pct" type="number" min="0" max="15" step="0.5" value="3">
+    </div>
+    <div>
+      <label for="delivery_date">Delivery date</label>
+      <input id="delivery_date" name="delivery_date" type="date" min="{{ today }}">
+      <p class="help">Leave blank to use the harvest date plus a two-day handling buffer.</p>
+    </div>
+    <div class="actions-row" style="align-items:flex-end"><button type="submit">Draft the agreement</button></div>
+  </div>
+  <p class="help">The order starts as <em>proposed</em>. Nothing is binding and no money moves until both parties accept the terms in the app and pay through the authorised partner.</p>
+</form>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h3 style="margin-top:0">Safeguards built into the flow</h3>
+    <ul class="tight">
+      <li>Delivery inside 3 days cannot be posted as an early order - that is a spot sale, and pretending otherwise hides risk.</li>
+      <li>A listing marked low-confidence for quantity warns the farmer to commit only what they are sure about.</li>
+      <li>Crop failure is a documented reschedule or partial-supply path, not an instant repayment demand.</li>
+      <li>Every status change writes an event with an actor, so disputes are read from a record.</li>
+      <li>Quantity that is already committed is removed from what a farmer can promise again.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">What the money line actually means</h3>
+    <p class="small muted" style="margin:0">
+      Advance = quantity &times; agreed price &times; deposit %. Balance = total &minus; advance.
+      Platform fee = total &times; commission %, disclosed before acceptance. Short delivery is priced at the
+      agreed rate for what was actually supplied, so nobody is penalised twice and nobody overpays.
+      Settlement maths live in <span class="mono">app/engine/earlyorders.py</span>.
+    </p>
+  </div>
+</div>
+{% endblock %}

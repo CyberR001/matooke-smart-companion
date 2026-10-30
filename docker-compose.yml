@@ -1,0 +1,33 @@
+# Two ways to run this project:
+#   docker compose up                      -> PostgreSQL, as specified in section 7
+#   uvicorn app.main:app --reload           -> SQLite, no setup
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: matooke
+      POSTGRES_PASSWORD: matooke
+      POSTGRES_DB: matookesmart
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U matooke -d matookesmart"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://matooke:matooke@db:5432/matookesmart
+      SEED_DEMO_DATA: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./data:/srv/app/data
+
+volumes:
+  dbdata:

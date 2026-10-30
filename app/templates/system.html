@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}How it fits together - {{ app_name }}{% endblock %}
+{% block content %}
+<h1>How it fits together</h1>
+<p class="lede">The layers of the system, which modules are finished and which are prototypes, and the logical data model, read live from the database definition.</p>
+
+<h2>Layers</h2>
+<div class="layers">
+  {% for l in layers %}
+  <div class="layer l{{ loop.index }}"><strong>{{ l.name }}</strong><span>{{ l.role }}</span><code>{{ l.code }}</code></div>
+  {% endfor %}
+</div>
+<p class="small muted">Requests go down the stack and answers come back up. Engines never import the web or database layers, so every rule can be tested and argued about on its own.</p>
+
+<h2>Module status</h2>
+<div class="table-wrap card"><table>
+  <thead><tr><th>§</th><th>Module</th><th>Status</th><th>Notes</th></tr></thead>
+  <tbody>{% for m in modules %}
+    <tr><td>{{ m.proposal }}</td><td>{{ m.name }}</td>
+    <td>{% if m.status == "working" %}<span class="badge green">working</span>{% else %}<span class="badge amber">prototype</span>{% endif %}</td>
+    <td class="small">{{ m.note }}</td></tr>{% endfor %}
+  </tbody></table></div>
+
+<h2>Logical data model</h2>
+<p class="small muted">{{ relationships|length }} relationships across {{ table_count }} tables. <span class="badge grey">PK</span> primary key, <span class="badge grey">FK</span> foreign key.</p>
+{% for d in logical_model %}
+<h3 class="domain">{{ d.domain }}</h3>
+<div class="grid cols-3">
+  {% for e in d.entities %}
+  <details class="card entity">
+    <summary><strong class="mono">{{ e.table }}</strong> <span class="muted small">{{ e.columns|length }} fields</span></summary>
+    <ul class="clean fields">
+      {% for c in e.columns %}
+      <li><span class="mono">{{ c.name }}</span> <span class="muted small">{{ c.type }}</span>
+        {% if c.pk %}<span class="badge grey">PK</span>{% endif %}
+        {% if c.fk %}<span class="badge">FK &rarr; {{ c.fk[0].split(".")[0] }}</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </details>
+  {% endfor %}
+</div>
+{% endfor %}
+<details class="card"><summary>Entity-relationship source (Mermaid)</summary>
+<pre class="mono code">{{ mermaid }}</pre></details>
+{% endblock %}

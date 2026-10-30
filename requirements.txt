@@ -1,0 +1,13 @@
+# Runtime
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30
+SQLAlchemy>=2.0,<3.0
+pydantic>=2.7,<3.0
+pydantic-settings>=2.3
+Jinja2>=3.1
+python-multipart>=0.0.9
+numpy>=1.26
+pandas>=2.2
+itsdangerous>=2.2
+
+psycopg[binary]>=3.1,<4

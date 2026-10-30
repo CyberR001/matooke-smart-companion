@@ -1,0 +1,538 @@
+{
+  "disclaimer": "Decision support only. These notes were written for a student prototype and reviewed against publicly documented guidance on Ugandan banana production. Only a qualified officer or laboratory test can confirm a diagnosis.",
+  "conditions": [
+    {
+      "key": "bxw",
+      "name": "Banana Xanthomonas Wilt (BXW)",
+      "also_known_as": ["bacterial wilt", "banana bacterial wilt"],
+      "type": "bacterial",
+      "causal_agent": "Xanthomonas campestris pv. musacearum",
+      "severity": "critical",
+      "quarantine_relevant": true,
+      "summary": "A bacterial disease that can destroy a whole matooke stand within a season. It blocks the water-conducting vessels, so the plant wilts and the fruit ripens prematurely and dries out.",
+      "tags": [
+        "yellowing_within_days",
+        "all_leaves_yellow",
+        "premature_fruit_ripening",
+        "fruit_shrivels_dry",
+        "male_bud_blackens",
+        "ooze_from_bud_or_stem",
+        "brown_inside_stem",
+        "one_plant_then_neighbours",
+        "no_leaf_spots"
+      ],
+      "contra_tags": ["leaf_spot_rings", "cup_upward_leaves", "insect_in_stem"],
+      "spread": [
+        "Contaminated pruning knives, pangas and hoes moved from an infected plant",
+        "Banana hopper insects visiting male buds",
+        "Run-off water and soil moved on boots or animals",
+        "Suckers taken from an infected garden"
+      ],
+      "favouring_conditions": [
+        "Working in the garden while plants and soil are wet",
+        "Male buds left on plants",
+        "Dense stands with no sanitation",
+        "Sharing tools between gardens without disinfecting"
+      ],
+      "immediate_actions": [
+        "Mark the affected plant and stop touching neighbouring plants with the same tool",
+        "Cut the pseudostem about 30 cm above ground in a dry period, leave it standing and do not move infected material",
+        "Cut out and bag the male bud and any infected fruit, then dispose of the bag safely",
+        "Disinfect the knife between every plant (household bleach 1 part to 4 parts water, or 90 % alcohol; soak/wipe and let it dry)",
+        "Cover the cut pseudostem with a small bag of bleach-soaked cloth or plastic so insects cannot carry bacteria onward"
+      ],
+      "prevention": [
+        "Remove and destroy the male bud (bud deactivation) on all plants in the mat - this removes the insect route",
+        "Prune and de-leaf regularly so the mat is dry and easy to inspect",
+        "Use clean planting material: tissue-culture plantlets or treated sword suckers only",
+        "Do not enter a neighbour's garden with tools used in an infected garden",
+        "Control weeds and avoid water flowing into a healthy mat",
+        "Isolate the infected mat and keep a sanitation record so you can show officials what you did"
+      ],
+      "explain_what_may_be_wrong": [
+        "Male buds were left on the plants, so insects could move bacteria between bunches",
+        "Tools were used across plants or gardens without disinfecting",
+        "Infected leaves, buds or stems were carried across the garden",
+        "Suckers were taken from a garden that already had the disease"
+      ],
+      "seek_help": "Report it to your parish/district agricultural officer promptly. BXW is a notified problem and control is a community action - your neighbours' gardens matter as much as yours.",
+      "references": [
+        {
+          "title": "Banana Xanthomonas Wilt management guidance (National Banana Research Institute, Nzerekore)",
+          "source": "NVRI / NARO - verify current version with your district"
+        },
+        {
+          "title": "Integrated BXW management: male bud removal, tool disinfection, sanitation",
+          "source": "Public agricultural extension literature, Uganda"
+        }
+      ]
+    },
+    {
+      "key": "black_sigatoka",
+      "name": "Black Sigatoka (leaf spot)",
+      "type": "fungal",
+      "causal_agent": "Paracercospora fijiensis (Mycosphaerella fijiensis)",
+      "severity": "high",
+      "quarantine_relevant": false,
+      "summary": "A leaf fungus that kills the leaf area the plant needs to fill the bunch. It usually starts as small streaks or spots on the underside of the youngest fully open leaf and matures into dark lesions with pale centres.",
+      "tags": [
+        "leaf_spots_start_underside",
+        "streaks_between_veins",
+        "dark_lesions_pale_centre",
+        "yellow_halo",
+        "leaf_edges_dry",
+        "bunch_small_light",
+        "slow_progression_weeks",
+        "wet_warm_weather"
+      ],
+      "contra_tags": ["ooze_from_bud_or_stem", "cup_upward_leaves", "sudden_collapse_days"],
+      "spread": [
+        "Spores carried by wind and rain splash from infected leaves",
+        "Old infected leaves and leaf debris left in the garden",
+        "Crowded, damp, poorly drained gardens"
+      ],
+      "favouring_conditions": [
+        "Frequent rain and long leaf-wetness, warm temperatures",
+        "Dense planting and heavy shade",
+        "Poor drainage and compacted soil",
+        "Low potassium / weak, fast-growing leaves",
+        "Infected leaves left hanging on the plant"
+      ],
+      "immediate_actions": [
+        "Remove the most badly spotted leaves and pull them out of the garden - do not drop them between plants",
+        "Improve air flow: thin the mat so one or two healthy stems remain per hole",
+        "Open drains where water stands; prune leaves touching the ground",
+        "Where the garden is large and loss is real, a protectant fungicide (for example copper-based, or a systemic product from an agro-dealer) can help - rotate active ingredients, follow the label, and spray in the evening. Do not spray near water sources or without protective clothing.",
+        "Do not harvest or eat fruit from leaves sprayed within the product's waiting period"
+      ],
+      "prevention": [
+        "Regular de-leafing and de-suckering (sanitation) is the cheapest control",
+        "Plant at recommended spacing (roughly 3 x 3 m for matooke on good land) rather than tighter",
+        "Keep drainage channels open before the long rains",
+        "Maintain soil fertility, especially potassium through ash or compost where a soil test supports it",
+        "Scout the youngest fully opened leaf every week and act on the first streaks"
+      ],
+      "explain_what_may_be_wrong": [
+        "Old infected leaves were left on the plant, so spores kept reinfecting new leaves",
+        "Plants are too crowded and the garden stays wet",
+        "No regular de-leafing or de-suckering was done",
+        "Fertility has fallen, making leaves soft and more easily infected"
+      ],
+      "seek_help": "An extension worker can estimate disease severity on the standard 1-6 lesion scale and advise whether spraying is economic for your plot.",
+      "references": [
+        {
+          "title": "Sigatoka management in banana: sanitation, spacing, nutrition, fungicide resistance management",
+          "source": "Public tropical banana production guidelines"
+        }
+      ]
+    },
+    {
+      "key": "bunchy_top",
+      "name": "Banana Bunchy Top Virus (BBTV)",
+      "type": "viral",
+      "causal_agent": "Banana bunchy top virus, spread by the banana aphid Pentalonia nigronervosa",
+      "severity": "critical",
+      "quarantine_relevant": true,
+      "summary": "A virus with no cure. The plant is stunted, leaves become narrow, cup upward at the edges and cluster at the top like a rosette; dark green streaks run along the veins of the midrib and leaf stalk.",
+      "tags": [
+        "small_leaves_at_top",
+        "cup_upward_leaves",
+        "dark_green_streaks_on_veins",
+        "narrow_leaf_blades",
+        "plant_stunted",
+        "no_bunch_or_tiny_bunch",
+        "aphids_present",
+        "slow_progression_weeks"
+      ],
+      "contra_tags": ["ooze_from_bud_or_stem", "leaf_spot_rings", "fruit_shrivels_dry"],
+      "spread": [
+        "Banana aphids moving from infected to healthy plants",
+        "Infected suckers used as planting material",
+        "Volunteer plants and ratoons left from an infected mat"
+      ],
+      "favouring_conditions": [
+        "Ants tending aphids on the pseudostem",
+        "Old, neglected mats with ratoons and volunteers",
+        "Planting material from a garden with the disease"
+      ],
+      "immediate_actions": [
+        "Do not spray hoping to cure the plant - infected plants stay infected",
+        "Inject or spot-treat the plant with an insecticide so aphids leave before you cut it, then cut and kill the plant and all its suckers (this is the standard 'destroy then disinfect' approach)",
+        "Cover the cut stump and remove the corm so new ratoons do not carry the virus",
+        "Disinfect tools and boots afterwards",
+        "Control ants and aphids on the remaining healthy mats"
+      ],
+      "prevention": [
+        "Plant only clean tissue-culture material or suckers from a disease-free, inspected source",
+        "Rogue out infected plants as soon as symptoms appear - early removal protects the whole garden",
+        "Keep the garden free of volunteers and ratoons",
+        "Avoid ant nests climbing the pseudostem (they protect aphids)"
+      ],
+      "explain_what_may_be_wrong": [
+        "Suckers were taken from an infected garden",
+        "Symptomatic plants were left standing 'to finish the bunch'",
+        "Weeding and mat cleaning were skipped, so aphids and ants built up"
+      ],
+      "seek_help": "BBTV needs a verified response because removal of whole mats is involved. Contact the district agricultural officer; samples can be tested by immunostaining/PCR at a national laboratory.",
+      "references": [
+        {
+          "title": "BBTV management: insecticide treatment before removal, clean planting material, rogueing",
+          "source": "Public banana virology extension guidance"
+        }
+      ]
+    },
+    {
+      "key": "moko",
+      "name": "Moko / blood disease (bacterial wilt complex)",
+      "type": "bacterial",
+      "causal_agent": "Ralstonia solanacearum race 2 (blood disease in Asia)",
+      "severity": "critical",
+      "quarantine_relevant": true,
+      "summary": "Looks very close to BXW: sudden wilting, blackened vascular tissue inside the stem and petioles, and shrivelled immature fruit. In Uganda BXW is far more likely, but the field response is similar and the distinction matters for reporting.",
+      "tags": [
+        "sudden_collapse_days",
+        "brown_inside_stem",
+        "ooze_from_bud_or_stem",
+        "yellowing_within_days",
+        "fruit_shrivels_dry",
+        "one_plant_then_neighbours"
+      ],
+      "contra_tags": ["cup_upward_leaves", "leaf_spot_rings"],
+      "spread": [
+        "Tools, water, and infected planting material",
+        "Contact with tomato, potato or pepper land carrying the bacterium"
+      ],
+      "favouring_conditions": ["wet soils", "warm temperatures", "poor drainage"],
+      "immediate_actions": [
+        "Treat it like BXW until a laboratory says otherwise: isolate, disinfect, remove plant material",
+        "Do not plant matooke where tomato or potato was recently grown without soil inspection"
+      ],
+      "prevention": [
+        "Clean planting material, drainage, crop separation from solanaceous crops, tool hygiene"
+      ],
+      "explain_what_may_be_wrong": [
+        "Planting material came from an unknown source",
+        "Land previously under tomato/potato was used without checking"
+      ],
+      "seek_help": "Laboratory differentiation from BXW is required. Involve the district agricultural officer.",
+      "references": [
+        {"title": "Ralstonia race 2 (Moko) in banana", "source": "Public plant pathology references"}
+      ]
+    },
+    {
+      "key": "nematode",
+      "name": "Burrowing / root-knot nematodes",
+      "type": "pest",
+      "causal_agent": "Radopholus similis, Pratylenchus spp., Meloidogyne spp.",
+      "severity": "medium",
+      "quarantine_relevant": false,
+      "summary": "Microscopic worms attack the roots and corm. The plant cannot take up water and nutrients, so bunches are small, plants yellow slowly, and in wind the whole plant topples because roots are weakened.",
+      "tags": [
+        "poor_response_to_fertiliser",
+        "plants_topple_in_wind",
+        "roots_lesions_black",
+        "slow_stunting",
+        "bunch_small_light",
+        "leaf_edges_dry",
+        "no_ooze_from_bud_or_stem"
+      ],
+      "contra_tags": ["ooze_from_bud_or_stem", "dark_green_streaks_on_veins"],
+      "spread": [
+        "Infested soil moved on tools, water or planting material",
+        "Continuous banana cropping with no rotation"
+      ],
+      "favouring_conditions": [
+        "Sandy, light or waterlogged soils",
+        "No organic matter / no mulch",
+        "Land previously cropped with grasses or solanaceous hosts"
+      ],
+      "immediate_actions": [
+        "Improve organic matter: well-rotted manure or compost applied around the mat",
+        "Mulch heavily to protect soil life and moisture",
+        "Improve drainage where water stands",
+        "Hot-water treatment (about 50 C for 15-20 minutes) of planting material is the standard low-cost disinfestation - get the timing right or you cook the sucker"
+      ],
+      "prevention": [
+        "Use clean, inspected planting material",
+        "Rotate neglected land with maize, beans or marigold before replanting",
+        "Keep soil fertility and organic matter high",
+        "Avoid moving soil between gardens on tools or boots"
+      ],
+      "explain_what_may_be_wrong": [
+        "Suckers came from an infested garden",
+        "Land was replanted to banana continuously without rotation or organic inputs",
+        "Soil fertility and organic matter have collapsed"
+      ],
+      "seek_help": "A soil sample tested at a laboratory tells you whether nematodes are the real limit, before you spend on any chemical nematicide.",
+      "references": [
+        {"title": "Nematode management in banana: hot-water treatment, sanitation, rotation", "source": "Public banana agronomy guidance"}
+      ]
+    },
+    {
+      "key": "weevil",
+      "name": "Banana weevil / corm weevil",
+      "type": "pest",
+      "causal_agent": "Cosmopolites sordidus",
+      "severity": "medium",
+      "quarantine_relevant": false,
+      "summary": "The adult beetle bores into the base of the plant and the larvae tunnel inside the corm. You see notched leaf edges, holes at the pseudostem base, and weak plants that fall over.",
+      "tags": [
+        "notched_leaf_edges",
+        "holes_at_stem_base",
+        "tunnels_in_corm",
+        "plants_topple_in_wind",
+        "slow_stunting",
+        "ants_or_beetles_at_base"
+      ],
+      "contra_tags": ["ooze_from_bud_or_stem", "leaf_spot_rings"],
+      "spread": [
+        "Infected planting material with corm attached",
+        "Old stumps and debris left in the garden"
+      ],
+      "favouring_conditions": [
+        "Mulch of fresh, infested pseudostem left on the ground",
+        "Weedy, undrained mats",
+        "Old stumps not removed"
+      ],
+      "immediate_actions": [
+        "Split infested pseudostems into pieces and place them as pitfall traps at ground level; collect trapped weevils every 2-3 days and destroy them",
+        "Remove and burn or deeply bury old stumps and corm debris",
+        "Trim and inspect suckers before planting, removing any with tunnels",
+        "Practise 'cut and spread': cut the infested stem, spread the pieces to dry so larvae die"
+      ],
+      "prevention": [
+        "Clean planting material and careful sucker inspection",
+        "Sanitation of stumps after harvesting",
+        "Trapping kept up year-round, not once",
+        "Mulch with dry, weevil-free material"
+      ],
+      "explain_what_may_be_wrong": [
+        "Stumps were left in the field after the previous harvest, giving weevils a breeding site",
+        "Planting material was not trimmed or inspected",
+        "Fresh green mulch was used"
+      ],
+      "seek_help": "An extension worker can show you trap density and, for heavy infestation, whether a labelled biological or chemical drench is economic for your plot.",
+      "references": [
+        {"title": "Integrated weevil management: traps, sanitation, clean planting material", "source": "Public banana IPM guidance"}
+      ]
+    },
+    {
+      "key": "potassium_deficiency",
+      "name": "Potassium (and general fertility) deficiency",
+      "type": "nutrient",
+      "causal_agent": "Low available soil potassium / depleted soil",
+      "severity": "medium",
+      "quarantine_relevant": false,
+      "summary": "Not a disease, but it looks like one. Older leaf edges yellow then scorch and dry, bunches fill poorly, fingers stay thin, and the plant is weaker against Sigatoka and wind.",
+      "tags": [
+        "leaf_edges_dry",
+        "bunch_small_light",
+        "thin_fingers",
+        "slow_progression_weeks",
+        "poor_response_to_fertiliser",
+        "whole_mat_similar",
+        "no_ooze_from_bud_or_stem"
+      ],
+      "contra_tags": ["ooze_from_bud_or_stem", "one_plant_then_neighbours"],
+      "spread": [],
+      "favouring_conditions": [
+        "Old, continuously cropped gardens with no manure or fertiliser",
+        "Sandy soils, or very acidic soils",
+        "Removing residues and each harvest taking nutrients away"
+      ],
+      "immediate_actions": [
+        "Apply well-rotted manure or compost around the mat (not against the stem)",
+        "Add wood ash where available and soil is not already alkaline - it supplies potassium but test first",
+        "Mulch to hold moisture and feed soil life",
+        "Do not broadcast fertiliser on a waterlogged or bone-dry soil; work it into the wetted zone"
+      ],
+      "prevention": [
+        "Return residues (outer sheaths, dead leaves) to the mat",
+        "Annual organic inputs, plus a soil test every few years",
+        "Liming only where a test shows acidity"
+      ],
+      "explain_what_may_be_wrong": [
+        "Nothing has been returned to the soil for several seasons",
+        "Fertiliser applied at the wrong time or in the wrong place",
+        "Soil pH is locking up nutrients"
+      ],
+      "seek_help": "A soil test is cheap relative to fertiliser you may waste. District laboratories and NARO can advise rates.",
+      "references": [
+        {"title": "Potassium nutrition of cooking banana", "source": "Public banana agronomy references"}
+      ]
+    },
+    {
+      "key": "waterlogging",
+      "name": "Waterlogging / root asphyxia",
+      "type": "abiotic",
+      "causal_agent": "Poor drainage, compacted soil, flood",
+      "severity": "low",
+      "quarantine_relevant": false,
+      "summary": "Standing water or compacted soil suffocates roots. Leaves yellow from the oldest upward, growth stalls, plants look generally soft, and root rot organisms follow.",
+      "tags": [
+        "water_stands_in_garden",
+        "leaf_edges_dry",
+        "slow_stunting",
+        "whole_mat_similar",
+        "no_ooze_from_bud_or_stem",
+        "roots_black_smelly"
+      ],
+      "contra_tags": ["one_plant_then_neighbours", "premature_fruit_ripening"],
+      "spread": [],
+      "favouring_conditions": ["clay soils without drains", "land at the bottom of a slope", "compaction from machines or animals"],
+      "immediate_actions": [
+        "Open drainage channels around and through the garden before the next rain",
+        "Avoid walking on wet plots (compaction)",
+        "Do not apply nitrogen while roots are damaged - it adds stress"
+      ],
+      "prevention": [
+        "Plant on mounds or in raised beds on heavy soils",
+        "Keep drains cleared each season",
+        "Add organic matter to improve structure"
+      ],
+      "explain_what_may_be_wrong": [
+        "The plot has no outlets and drains were never cut",
+        "Soil structure collapsed from continuous cropping and trampling"
+      ],
+      "seek_help": "Water management is a landscape problem - discuss it with the parish agricultural development officer, ideally with neighbouring gardens.",
+      "references": [
+        {"title": "Drainage and land preparation for banana in humid highland zones", "source": "Public agronomy guidance"}
+      ]
+    },
+    {
+      "key": "sunscald",
+      "name": "Sunscald / heat and wind damage",
+      "type": "abiotic",
+      "causal_agent": "Excessive radiation, dry wind, leaf loss",
+      "severity": "low",
+      "quarantine_relevant": false,
+      "summary": "When too few leaves shade the bunch, the peel bleaches, blushes or splits and the fingers stop filling. Often follows aggressive de-leafing, a dry windy season, or leaf loss from Sigatoka.",
+      "tags": [
+        "peel_bleached_or_rusted",
+        "cracked_peel",
+        "thin_fingers",
+        "too_few_leaves_left",
+        "dry_windy_weather",
+        "no_ooze_from_bud_or_stem"
+      ],
+      "contra_tags": ["ooze_from_bud_or_stem", "dark_green_streaks_on_veins"],
+      "spread": [],
+      "favouring_conditions": ["over-pruning", "windy exposed sites", "few shade plants"],
+      "immediate_actions": [
+        "Leave enough functional leaves - roughly 8-12 healthy leaves per stem supports bunch filling and shade",
+        "Prop or tie bunches in windy spots, keep a leaf sheath around the bunch where practical",
+        "Plant windbreaks (Grevillea, Calliandra) on exposed edges"
+      ],
+      "prevention": [
+        "Prune for balance, not appearance",
+        "Maintain windbreaks and intercrop canopy",
+        "Irrigate or mulch in dry spells where feasible"
+      ],
+      "explain_what_may_be_wrong": [
+        "Too many leaves were removed during 'cleaning'",
+        "The plot is exposed on a ridge or open lake shore"
+      ],
+      "seek_help": "None needed unless the damage is severe; adjust pruning practice.",
+      "references": [
+        {"title": "Banana bunch protection and leaf retention", "source": "Public agronomy references"}
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "speed",
+      "text": "How fast did the problem appear?",
+      "options": [
+        {"id": "days", "label": "Very fast - within a week or two", "tags": ["yellowing_within_days", "sudden_collapse_days"], "contra": ["slow_progression_weeks"]},
+        {"id": "weeks", "label": "Gradually, over several weeks or months", "tags": ["slow_progression_weeks"], "contra": ["sudden_collapse_days"]},
+        {"id": "unsure", "label": "I am not sure", "tags": [], "contra": []}
+      ]
+    },
+    {
+      "id": "pattern",
+      "text": "Which plants in the garden are affected?",
+      "options": [
+        {"id": "one", "label": "One plant, or a few next to each other", "tags": ["one_plant_then_neighbours"], "contra": ["whole_mat_similar"]},
+        {"id": "many", "label": "Many plants across the garden, looking similar", "tags": ["whole_mat_similar"], "contra": ["one_plant_then_neighbours"]},
+        {"id": "unsure", "label": "I am not sure", "tags": [], "contra": []}
+      ]
+    },
+    {
+      "id": "fruit",
+      "text": "What is happening to the fruit/bunch?",
+      "options": [
+        {"id": "premature", "label": "It ripens early, shrivels and dries before maturity", "tags": ["premature_fruit_ripening", "fruit_shrivels_dry"], "contra": []},
+        {"id": "small", "label": "It is small, thin and fills poorly", "tags": ["bunch_small_light", "thin_fingers"], "contra": []},
+        {"id": "none", "label": "No bunch yet / fruit looks normal", "tags": ["no_bunch_or_tiny_bunch"], "contra": ["premature_fruit_ripening"]},
+        {"id": "unsure", "label": "I am not sure", "tags": [], "contra": []}
+      ]
+    },
+    {
+      "id": "bud",
+      "text": "Look at the male bud (the 'heart') - what do you see?",
+      "options": [
+        {"id": "black", "label": "It is turning black, drying or oozing", "tags": ["male_bud_blackens", "ooze_from_bud_or_stem"], "contra": []},
+        {"id": "normal", "label": "It looks normal, or I removed it", "tags": ["no_ooze_from_bud_or_stem"], "contra": ["male_bud_blackens"]},
+        {"id": "unsure", "label": "I am not sure", "tags": [], "contra": []}
+      ]
+    },
+    {
+      "id": "inside",
+      "text": "If you cut the stem (or a leaf stalk) lengthwise, what does the inside look like?",
+      "options": [
+        {"id": "brown", "label": "Brown or black streaks inside", "tags": ["brown_inside_stem"], "contra": []},
+        {"id": "clean", "label": "Cream/white, no staining", "tags": ["no_leaf_spots"], "contra": ["brown_inside_stem"]},
+        {"id": "not_cut", "label": "I have not cut it", "tags": [], "contra": []}
+      ]
+    },
+    {
+      "id": "leaves",
+      "text": "What is the main problem on the leaves?",
+      "options": [
+        {"id": "spots", "label": "Spots, streaks or lesions (often with a pale centre or yellow edge)", "tags": ["leaf_spots_start_underside", "streaks_between_veins", "dark_lesions_pale_centre", "yellow_halo", "leaf_spot_rings"], "contra": ["no_leaf_spots"]},
+        {"id": "yellow", "label": "Yellowing and drying, starting at the edges", "tags": ["leaf_edges_dry", "all_leaves_yellow"], "contra": []},
+        {"id": "narrow", "label": "Small, narrow, cupped leaves crowded at the top", "tags": ["small_leaves_at_top", "cup_upward_leaves", "narrow_leaf_blades", "dark_green_streaks_on_veins"], "contra": []},
+        {"id": "ok", "label": "Leaves look mostly fine", "tags": ["no_leaf_spots"], "contra": ["leaf_spots_start_underside"]},
+        {"id": "unsure", "label": "I am not sure", "tags": [], "contra": []}
+      ]
+    },
+    {
+      "id": "stability",
+      "text": "Are plants falling over, especially after wind?",
+      "options": [
+        {"id": "topple", "label": "Yes, they topple or lean badly", "tags": ["plants_topple_in_wind"], "contra": []},
+        {"id": "firm", "label": "No, they stand firmly", "tags": [], "contra": ["plants_topple_in_wind"]},
+        {"id": "unsure", "label": "I am not sure", "tags": [], "contra": []}
+      ]
+    },
+    {
+      "id": "pests",
+      "text": "Have you seen insects or damage at the base of the plant?",
+      "options": [
+        {"id": "weevil", "label": "Notches on leaves, holes or tunnels at the base / beetles under the cut stem", "tags": ["notched_leaf_edges", "holes_at_stem_base", "tunnels_in_corm", "ants_or_beetles_at_base", "insect_in_stem"], "contra": []},
+        {"id": "aphids", "label": "Small dark insects clustered near the top / on young leaves, often with ants", "tags": ["aphids_present"], "contra": []},
+        {"id": "none", "label": "Nothing like that", "tags": [], "contra": ["notched_leaf_edges", "holes_at_stem_base"]},
+        {"id": "unsure", "label": "I am not sure", "tags": [], "contra": []}
+      ]
+    },
+    {
+      "id": "conditions",
+      "text": "What is the garden and weather like?",
+      "options": [
+        {"id": "wet", "label": "Very wet, water stands, or lots of rain recently", "tags": ["wet_warm_weather", "water_stands_in_garden"], "contra": []},
+        {"id": "drywind", "label": "Dry, hot or windy", "tags": ["dry_windy_weather"], "contra": []},
+        {"id": "tired", "label": "Old garden, no manure or fertiliser for years", "tags": ["poor_response_to_fertiliser"], "contra": []},
+        {"id": "unsure", "label": "I am not sure", "tags": [], "contra": []}
+      ]
+    },
+    {
+      "id": "roots",
+      "text": "If you can see roots or the corm, do they look damaged?",
+      "options": [
+        {"id": "lesions", "label": "Black, rotten or spotted roots", "tags": ["roots_lesions_black", "roots_black_smelly"], "contra": []},
+        {"id": "healthy", "label": "White/cream and firm", "tags": [], "contra": ["roots_lesions_black"]},
+        {"id": "not_seen", "label": "I cannot see them", "tags": [], "contra": []}
+      ]
+    }
+  ]
+}

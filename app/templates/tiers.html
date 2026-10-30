@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Membership - {{ app_name }}{% endblock %}
+{% block content %}
+<h1>Membership and what stays free</h1>
+<p class="lede">
+  Section 5.7. Prices below are hypotheses to be tested with farmers and buyers, not tariffs. The rule
+  the code enforces is that disease warnings and basic market information are never behind a paywall.
+</p>
+
+<div class="grid cols-2">
+  {% for key, t in tiers.items() %}
+  <div class="card {% if key == 'basic_farmer' %}accent{% endif %}">
+    <h3 style="margin-top:0">{{ t.label }}</h3>
+    <p class="pill-list" style="margin:0 0 6px">
+      <span class="badge {% if t.price_ugx_month %}amber{% else %}green{% endif %}">
+        {% if t.price_ugx_month %}{{ t.price_ugx_month|ugx }} a month (to be validated){% else %}free{% endif %}
+      </span>
+      <span class="badge grey">{{ t.audience }}</span>
+    </p>
+    <p class="small" style="margin:0 0 6px">{{ t.access }}</p>
+    {% if t.features %}
+    <p class="small muted" style="margin:0">Adds: {{ t.features|join(', ')|replace('_',' ') }}</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<div class="grid cols-2">
+  <div class="card accent">
+    <h3 style="margin-top:0">Never gated, on any account</h3>
+    <p class="pill-list" style="margin:0">{% for f in never_gated %}<span class="badge green">{{ f|replace('_',' ') }}</span>{% endfor %}</p>
+    <p class="small muted" style="margin:8px 0 0">
+      Enforced in <span class="mono">app/engine/entitlements.py</span> and covered by a test: a free account
+      receives farm-doctor advice, prevention guidance and the basic trend. A subscription that hid a
+      disease warning would fail our own test suite.
+    </p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">What paid tiers unlock</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Feature</th><th>Requires</th></tr></thead>
+        <tbody>
+          {% for feature, needed in gated.items() %}
+          <tr><td>{{ feature|replace('_',' ') }}</td><td class="small">{{ needed|join(' or ') }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card warn">
+  <h3 style="margin-top:0">Before any price is charged</h3>
+  <ul class="tight">
+    <li>Willingness to pay has to come out of the interviews in section 9, not from this page.</li>
+    <li>The business should not depend on subscriptions alone: early on, transaction income and Hub margins are likelier to work.</li>
+    <li>Cancellation must stay as easy as joining; no hidden renewal.</li>
+  </ul>
+</div>
+{% endblock %}

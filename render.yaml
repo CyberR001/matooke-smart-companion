@@ -1,0 +1,14 @@
+# One-click deploy on Render's free plan: render.com -> New -> Blueprint -> pick this repo.
+# Free instances sleep after inactivity and the SQLite file resets on redeploy, which is fine
+# for a demo (the app re-seeds itself). For real data, attach a Postgres DATABASE_URL.
+services:
+  - type: web
+    name: matookesmart
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: SEED_DEMO_DATA
+        value: "true"

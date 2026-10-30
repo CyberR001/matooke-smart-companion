@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Farm doctor - {{ app_name }}{% endblock %}
+{% block content %}
+<h1>Farm doctor <span class="badge amber proto">Prototype: rule-based, no image AI</span></h1>
+<p class="lede">
+  Section 5.1. Answer what you can see in the garden; the engine ranks the conditions in the knowledge
+  base and suggests next steps. Image uploads and recognition are not enabled in this prototype; the ranking comes from your answers.
+</p>
+
+<form method="get" action="/farm-doctor" class="card">
+  <div class="row cols">
+    <div>
+      <label for="farmer_id">Farmer</label>
+      <select id="farmer_id" name="farmer_id">
+        {% for p in people %}<option value="{{ p.id }}" {% if p.id == farmer_id %}selected{% endif %}>{{ p.full_name }} ({{ p.district }})</option>{% endfor %}
+      </select>
+    </div>
+
+  </div>
+
+  {% for q in questions %}
+  <fieldset>
+    <legend>{{ loop.index }}. {{ q.text }}</legend>
+    {% for o in q.options %}
+    <label style="display:flex;gap:8px;align-items:flex-start;font-weight:500;font-size:14px;color:inherit;margin:0 0 4px">
+      <input type="radio" name="{{ q.id }}" value="{{ o.id }}"
+        {% if answers.get(q.id) == o.id %}checked{% endif %}
+        {% if loop.first and answers.get(q.id) is none %}required{% endif %}>
+      <span>{{ o.label }}</span>
+    </label>
+    {% endfor %}
+  </fieldset>
+  {% endfor %}
+  <div class="actions-row">
+    <button type="submit">Check possible causes</button>
+    <a class="btn secondary" href="/farm-doctor">Start again</a>
+  </div>
+  <p class="help">Answer at least three questions for a ranking you can act on. "I am not sure" is a useful answer - it stops the model guessing.</p>
+</form>
+
+{% if result.candidates %}
+<div class="card {% if result.referred %}warn{% else %}accent{% endif %}">
+  <h2 style="margin-top:0">{{ result.headline }}</h2>
+  {% if result.referred %}
+  <p class="small" style="margin:0 0 8px"><strong>Ask a person.</strong> {{ result.referral_reason }}</p>
+  <div class="actions-row" style="margin:0 0 10px">
+    <span class="badge red">referred for human assessment</span>
+    <span class="badge grey">referral floor: {{ (referral_floor * 100)|round(0)|int }} %</span>
+  </div>
+  {% endif %}
+  <p class="small muted" style="margin:0 0 10px">Overall confidence {{ (result.confidence * 100)|round(0)|int }} %. Confidence is capped below 100 % on purpose: symptom matching alone cannot be certain.</p>
+
+  <ol class="tight">
+    {% for c in result.candidates %}
+    <li>
+      <strong>{{ c.name }}</strong>
+      <span class="badge {% if c.severity == 'critical' %}red{% elif c.severity == 'high' %}amber{% else %}grey{% endif %}">{{ c.severity }}</span>
+      <span class="badge grey">{{ c.type }}</span>
+      <div class="score"><div class="bar"><i style="width:{{ (c.confidence * 100)|round }}%"></i></div><span class="contrib">{{ (c.confidence * 100)|round(0)|int }} % match</span></div>
+      <div class="small muted">{{ c.summary }}</div>
+      {% if c.matched %}<div class="contrib" style="margin-top:3px">Reported and typical: <b>{{ c.matched|join(', ') }}</b></div>{% endif %}
+      {% if c.contradicted %}<div class="contrib">Against this: <b>{{ c.contradicted|join(', ') }}</b></div>{% endif %}
+      {% if c.denied %}<div class="contrib">You ruled out: <b>{{ c.denied|join(', ') }}</b> (this lowered its score)</div>{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</div>
+
+{% if result.advice %}
+{% set a = result.advice %}
+<div class="card">
+  <h3>{{ a.name }} - what to do now</h3>
+  <p class="small muted" style="margin:0 0 6px">{{ a.causal_agent }}</p>
+  <ul class="actions">{% for step in a.immediate_actions %}<li>{{ step }}</li>{% endfor %}</ul>
+  <h3 style="margin-top:14px">Stop it coming back</h3>
+  <ul class="tight">{% for p in a.prevention %}<li>{{ p }}</li>{% endfor %}</ul>
+  {% if a.explain_what_may_be_wrong %}
+  <h3 style="margin-top:14px">What may be going wrong in the garden</h3>
+  <ul class="tight">{% for x in a.explain_what_may_be_wrong %}<li>{{ x }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% if a.spread %}
+  <h3 style="margin-top:14px">How it spreads</h3>
+  <ul class="tight">{% for s in a.spread %}<li>{{ s }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% if a.favouring_conditions %}
+  <h3 style="margin-top:14px">Conditions that favour it</h3>
+  <ul class="tight">{% for s in a.favouring_conditions %}<li>{{ s }}</li>{% endfor %}</ul>
+  {% endif %}
+  <p class="small" style="margin-top:12px"><span class="badge green">free to every farmer</span> This advice is never behind a subscription - see <a href="/tiers">membership</a>.</p>
+  {% if a.quarantine_relevant %}<p class="small"><span class="badge red">notifiable</span> {{ a.seek_help }}</p>{% endif %}
+  <div class="actions-row">
+    <form method="post" action="/farm-doctor/save" style="display:inline">
+      <input type="hidden" name="farmer_id" value="{{ farmer_id }}">
+      <input type="hidden" name="answers" value="{% for k, v in answers.items() %}{{ k }}:{{ v }}{% if not loop.last %};{% endif %}{% endfor %}">
+      <button type="submit" class="small">Save to my farm record</button>
+    </form>
+    <a class="btn small secondary" href="/prices">Log a market price</a>
+  </div>
+</div>
+{% endif %}
+
+{% if result.next_question %}
+<div class="card accent">
+  <h3 style="margin-top:0">One more question sharpens this</h3>
+  <p class="small" style="margin:0 0 8px"><strong>{{ result.next_question.text }}</strong> · {{ result.next_question.why }}</p>
+  <div class="pill-list">
+    {% for o in result.next_question.options %}
+    <a class="btn small secondary" href="/farm-doctor?farmer_id={{ farmer_id }}&{% for k, v in answers.items() %}{{ k }}={{ v }}&{% endfor %}{{ result.next_question.id }}={{ o.id }}">
+      {{ o.label }}
+    </a>
+    {% endfor %}
+  </div>
+  <p class="help">Each link keeps your previous answers and adds this one.</p>
+</div>
+{% endif %}
+
+{% if result.unanswered %}
+<p class="small muted">Questions still unanswered: {{ result.unanswered|join(', ') }}. Unanswered questions reduce confidence rather than being guessed.</p>
+{% endif %}
+{% elif answers %}
+<div class="card warn"><p class="small" style="margin:0">No condition in the knowledge base matches these answers closely enough to rank one. {{ result.referral_reason }}</p></div>
+{% endif %}
+
+<h2>What the knowledge base covers</h2>
+<div class="pill-list">
+  {% for c in conditions %}<span class="badge grey">{{ c.name }}</span>{% endfor %}
+</div>
+<div class="card">
+  <h3 style="margin-top:0">Honesty rules in this module</h3>
+  <ul class="tight">
+    <li>Output is phrased as a <em>possible</em> condition, never a diagnosis.</li>
+    <li>Cases below the referral floor, or where two conditions are close, are referred to an officer instead of being answered.</li>
+    <li>BXW, Moko and bunchy top are always escalated: they are garden- and community-level problems.</li>
+    <li>Confidence is capped below certainty because symptoms alone cannot confirm anything.</li>
+    <li>{{ kb_disclaimer }}</li>
+  </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Hub and products - {{ app_name }}{% endblock %}
+{% block content %}
+<h1>Surplus, products and the MatookeSmart Hub</h1>
+<p class="lede">
+  Section 5.3. The platform works out whether processing is worth it before anyone is told to process:
+  yield, cost stack, margin and shelf life, with a ranking whose components are visible. The Hub then
+  publishes what it is actually buying.
+</p>
+
+<form method="get" action="/hub" class="card">
+  <div class="row cols">
+    <div>
+      <label for="fresh_kg">Fresh matooke available (kg)</label>
+      <input id="fresh_kg" name="fresh_kg" type="number" min="10" step="10" value="{{ fresh_kg }}">
+      <p class="help">≈ {{ (fresh_kg / 27)|round(1) }} bunches at 27 kg per bunch.</p>
+    </div>
+    <div>
+      <label for="services_str">Processing you can reach (comma separated)</label>
+      <input id="services_str" name="services_str" value="{{ services_str }}">
+      <p class="help">Choices: {{ all_services|join(', ') }}. Add one that exists nearby and the ranking changes honestly.</p>
+    </div>
+    <div>
+      <label for="target">Income target (UGX, optional)</label>
+      <input id="target" name="target" type="number" min="0" step="50000" value="{{ target or '' }}">
+      <p class="help">Answers the real question: how much fresh matooke must I process to earn this?</p>
+    </div>
+    <div class="actions-row" style="align-items:flex-end"><button type="submit">Recalculate</button></div>
+  </div>
+  <p class="help">Cost basis in use: fresh {{ cost_basis.fresh_matooke_ugx_per_kg|ugx }} per kg, labour {{ cost_basis.labour_ugx_per_hour|ugx }} per hour, packaging default {{ cost_basis.packaging_ugx_per_kg_default|ugx }} per kg.</p>
+</form>
+
+{% if income %}
+<div class="card accent">
+  <h3 style="margin-top:0">To earn {{ target|ugx }} from {{ income.product }}</h3>
+  {% if income.calc.possible %}
+  <p class="small" style="margin:0">
+    Process about <strong>{{ income.calc.fresh_kg_needed }} kg fresh</strong> (roughly {{ income.calc.bunches_approx }} bunches)
+    to get <strong>{{ income.calc.expected_margin_ugx|ugx }}</strong> margin, producing {{ income.calc.expected_output_kg }} kg of finished product.
+    Margin per kg fresh: {{ income.calc.margin_per_fresh_kg_ugx|ugx }}.
+  </p>
+  {% else %}
+  <p class="small" style="margin:0">{{ income.calc.reason }}</p>
+  {% endif %}
+  <p class="small muted" style="margin:8px 0 0">{{ income.calc.assumption_note }}</p>
+</div>
+{% endif %}
+
+<h2>Ranked options</h2>
+{% for r in recs %}
+<div class="card {% if r.verdict == 'worth a trial batch' %}accent{% endif %}">
+  <h3 style="margin-top:0">{{ r.product_name }}
+    <span class="badge {% if r.verdict == 'worth a trial batch' %}green{% elif r.verdict == 'not yet attractive' %}red{% else %}amber{% endif %}">{{ r.verdict }}</span>
+    <span class="badge {% if r.source == 'measured' %}green{% else %}synth{% endif %}">{{ r.source }} yield</span>
+    {% if r.hub_is_buying %}<span class="badge green">Hub buying</span>{% endif %}
+  </h3>
+  <p class="small muted" style="margin:0 0 8px">{{ r.spec.tagline }}</p>
+  <div class="kv">
+    <div><dt>Yield (fresh &rarr; finished)</dt><dd>{{ r.yield_pct }} %</dd></div>
+    <div><dt>Output from {{ r.fresh_kg }} kg</dt><dd>{{ r.output_kg }} kg</dd></div>
+    <div><dt>Revenue at {{ r.selling_price_ugx_per_kg|ugx }}/kg</dt><dd>{{ r.revenue_ugx|ugx }}</dd></div>
+    <div><dt>Direct costs</dt><dd>{{ r.cost_total_ugx|ugx }}</dd></div>
+    <div><dt>Margin</dt><dd>{{ r.margin_ugx|ugx }} ({{ r.margin_pct }} %)</dd></div>
+    <div><dt>Margin per kg fresh</dt><dd>{{ r.margin_per_fresh_kg_ugx|ugx }}</dd></div>
+    <div><dt>Shelf life</dt><dd>~{{ r.shelf_life_days }} days</dd></div>
+    <div><dt>Complexity</dt><dd>{{ r.complexity }} of 5</dd></div>
+  </div>
+
+  <p class="pill-list" style="margin:8px 0 0">
+    {% for name, cents in r.costs.items() %}<span class="badge grey">{{ name }} {{ cents|ugx }}</span>{% endfor %}
+  </p>
+
+  <div class="score" style="margin-top:10px">
+    {% for name, val in r.contributions.items() %}
+    <span class="contrib" style="min-width:70px">{{ name }}</span>
+    <span class="bar" style="max-width:90px"><i style="width:{{ ((val / 0.35) * 100)|round }}%"></i></span>
+    <span class="contrib">{{ val }}</span>
+    {% endfor %}
+    <span class="contrib"><b>total {{ r.score }}</b></span>
+  </div>
+
+  <ul class="tight">{% for reason in r.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>
+  {% if r.risks %}<p class="small muted" style="margin:6px 0 0">Risks: {{ r.risks|join(' · ') }}</p>{% endif %}
+
+  <details style="margin-top:8px">
+    <summary class="small">Process, equipment, quality and food safety</summary>
+    <ol class="tight">{% for step in r.spec.process_steps %}<li>{{ step }}</li>{% endfor %}</ol>
+    <p class="small"><strong>Equipment:</strong> {{ r.spec.equipment|join(', ') }}</p>
+    <p class="small"><strong>Skills needed:</strong> {{ r.spec.skills|join(', ') }}</p>
+    <p class="small"><strong>Quality spec:</strong> {{ r.spec.quality_spec }}</p>
+    <ul class="tight">{% for f in r.spec.food_safety %}<li>{{ f }}</li>{% endfor %}</ul>
+    <p class="small muted">{{ r.spec.capital_note }}</p>
+  </details>
+</div>
+{% endfor %}
+
+<div class="grid cols-2">
+  <div class="card">
+    <h3 style="margin-top:0">Hub buying requirements</h3>
+    <ul class="clean">
+      {% for n in notices %}
+      <li>
+        <strong>{{ n.title }}</strong> {% if n.is_live %}<span class="badge green">open</span>{% else %}<span class="badge grey">{{ n.status }}</span>{% endif %}
+        <div class="small">Accepts: {{ n.accepts_form }} · {{ n.quantity_kg }} kg target · limit {{ n.purchase_limit_kg }} kg per farmer</div>
+        <div class="small">{{ n.price_ugx_per_unit|ugx }} {{ n.price_basis }} at {{ n.pickup_point or n.district }}</div>
+        <div class="small muted">{{ n.quality_spec }}</div>
+        {% if n.closes_on %}<div class="small muted">Closes {{ n.closes_on|day }}</div>{% endif %}
+      </li>
+      {% else %}
+      <li class="small muted">No notice published. The Hub does not have to buy every farmer's surplus - it buys against confirmed demand.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Measured trials on file</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Product</th><th class="right">Fresh kg</th><th class="right">Output</th><th class="right">Yield</th><th class="right">Selling</th><th>Notes</th></tr></thead>
+        <tbody>
+          {% for t in trials %}
+          <tr>
+            <td>{{ t.product_key|replace('_',' ') }}<br><span class="small muted">{{ t.trial_date|short }}</span></td>
+            <td class="num">{{ t.fresh_input_kg }}</td>
+            <td class="num">{{ t.output_kg }}</td>
+            <td class="num">{{ ((t.output_kg / t.fresh_input_kg) * 100)|round(1) }} %</td>
+            <td class="num">{{ t.selling_price_ugx_per_kg|ugx }}</td>
+            <td class="small muted">{{ t.notes }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="small muted">No trials recorded. Until there is one, every margin on this page is an assumption.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted" style="margin:8px 0 0">Adding a trial through <span class="mono">POST /api/v1/trials</span> immediately replaces the catalog yield and unit costs for that product - that is how the model is meant to be fed by field work.</p>
+  </div>
+</div>
+
+<div class="card warn"><p class="small" style="margin:0">{{ notice }}</p></div>
+{% endblock %}

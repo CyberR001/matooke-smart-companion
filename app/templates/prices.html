@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Price log - {{ app_name }}{% endblock %}
+{% block content %}
+<h1>Market price log <span class="badge amber proto">Synthetic sample data</span></h1>
+<p class="lede">
+  The whole market-intelligence module is only as good as this record. One observation, one market, one
+  date, one grade - with who collected it and whether anyone verified it. Unverified rows never raise
+  forecast confidence.
+</p>
+
+<form method="post" action="/prices" class="card">
+  <div class="row cols">
+    <div>
+      <label for="market_id">Market</label>
+      <select id="market_id" name="market_id" required>
+        {% for m in markets %}<option value="{{ m.id }}" {% if m.id == market_id %}selected{% endif %}>{{ m.name }} ({{ m.district }})</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="observed_on">Date observed</label>
+      <input id="observed_on" name="observed_on" type="date" max="{{ today }}" value="{{ today }}" required>
+    </div>
+    <div>
+      <label for="price_ugx">Price per bunch (UGX)</label>
+      <input id="price_ugx" name="price_ugx" type="number" min="1000" step="500" required>
+    </div>
+    <div>
+      <label for="grade">Grade seen</label>
+      <select id="grade" name="grade"><option>low</option><option selected>medium</option><option>high</option></select>
+    </div>
+    <div>
+      <label for="source">Who told you</label>
+      <input id="source" name="source" value="field agent" required>
+    </div>
+    <div class="actions-row" style="align-items:flex-end"><button type="submit">Save observation</button></div>
+  </div>
+  <p class="help">Future-dated observations are refused. New rows enter as unverified until a supervisor checks them.</p>
+</form>
+
+<h2>Latest {{ rows|length }} observations{% if rows %} for {{ rows[0].market.name }}{% endif %}</h2>
+<div class="table-wrap card">
+  <table>
+    <thead><tr><th>Date</th><th class="right">Price</th><th>Grade</th><th>Source</th><th>Verified</th><th>Data</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.observed_on|day }}</td>
+        <td class="num">{{ r.price_ugx|ugx }}</td>
+        <td>{{ r.grade }}</td>
+        <td class="small">{{ r.source }}</td>
+        <td>{% if r.verified %}<span class="badge green">yes</span>{% else %}<span class="badge amber">pending</span>{% endif %}</td>
+        <td>{% if r.is_synthetic %}<span class="badge synth">sample</span>{% else %}<span class="badge grey">field</span>{% endif %}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="small muted">No observations recorded for this market yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="small muted">
+  Machine access: <span class="mono">GET /api/v1/markets</span>, <span class="mono">GET /api/v1/markets/&lt;id&gt;/prices?days=365</span>,
+  <span class="mono">POST /api/v1/prices</span>. Each forecast run is stored in <span class="mono">forecast_run</span> so later
+  accuracy can be measured against what was said on the day.
+</p>
+{% endblock %}
