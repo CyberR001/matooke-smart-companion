@@ -82,6 +82,13 @@ async def auth_guard(request: Request, call_next):
     public_paths = ("/login", "/logout", "/static", "/robots.txt", "/api", "/favicon.ico")
     if path.startswith(public_paths):
         return await call_next(request)
+
+    # SessionMiddleware is registered above, but guard against missing scope in unusual requests.
+    if "session" not in request.scope:
+        if "text/html" in request.headers.get("accept", ""):
+            return RedirectResponse(f"/login?next={quote(path or '/dashboard')}", status_code=303)
+        return JSONResponse({"detail": "Authentication required."}, status_code=401)
+
     if not request.session.get("user"):
         if "text/html" in request.headers.get("accept", ""):
             return RedirectResponse(f"/login?next={quote(path or '/dashboard')}", status_code=303)
