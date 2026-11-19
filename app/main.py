@@ -79,6 +79,10 @@ errors.install(app)
 @app.middleware("http")
 async def auth_guard(request: Request, call_next):
     path = request.url.path
+    # Google OAuth is disabled; reject old bookmarks and provider callbacks.
+    if path.startswith("/auth/google/"):
+        return JSONResponse({"detail": "Google authentication is disabled."}, status_code=404)
+
     public_paths = ("/login", "/logout", "/static", "/robots.txt", "/api", "/favicon.ico")
     if path.startswith(public_paths):
         return await call_next(request)
@@ -100,6 +104,8 @@ app.mount("/static", StaticFiles(directory=str(pages.BASE / "static")), name="st
 app.include_router(api_router)
 app.include_router(system.api)
 app.include_router(system.pages)
+# Do not register the legacy Google OAuth handlers at all.
+pages.router.routes = [route for route in pages.router.routes if not route.path.startswith("/auth/google/")]
 app.include_router(pages.router)
 
 
@@ -108,3 +114,4 @@ def robots():
     from fastapi.responses import PlainTextResponse
 
     return PlainTextResponse("User-agent: *\nAllow: /\n")
+

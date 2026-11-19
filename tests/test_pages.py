@@ -115,3 +115,12 @@ def test_unknown_farm_is_a_clean_404_rather_than_someone_elses_data(client):
         assert r.status_code == 404, path
         assert "farm" in r.text.lower() or "farm" in str(r.json()).lower()
     assert client.get("/orders/MS-EO-1999-9999").status_code == 404
+
+
+def test_google_auth_is_removed_and_password_login_remains(client):
+    login = client.get("/login")
+    assert login.status_code == 200
+    assert "Continue with Google" not in login.text
+    assert 'action="/login"' in login.text
+    assert client.get("/auth/google/login").status_code == 404
+    assert client.get("/auth/google/callback?code=old-code").status_code == 404

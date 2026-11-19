@@ -48,12 +48,8 @@
           <span>Password</span>
           <input type="password" name="password" placeholder="Enter your password" required>
         </label>
-        <button type="submit" class="btn auth-btn">Sign in securely</button>
+        <button type="submit" class="btn auth-btn">Sign in</button>
       </form>
-
-      {% if google_enabled %}
-      <a class="btn google-btn" href="/auth/google/login?next={{ next or '/dashboard' }}">Continue with Google</a>
-      {% endif %}
 
       <div class="demo-box">
         <strong>Demo access</strong>
